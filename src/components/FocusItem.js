@@ -1,58 +1,68 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Pressable } from 'react-native';
 import { colors } from '../utils/Colors';
 
 import RNPickerSelect from 'react-native-picker-select';
+import { ButtonComp } from './Button';
 
-export const FocusItem = () => {
-    const [ focusItem, setFocusItem ] = useState('');
-    const [ workTime, setWorkTime ] = useState(0);
-    const [ breakTime, setBreakTime ] = useState(0);
+export const FocusItem = ({
+    setFocusItem,
+    setWorkTime,
+    setBreakTime,
+    setIsFocusItem
+}) => {
+    const [ focus, setFocus ] = useState(null);
+    const [ work, setWork ] = useState(0);
+    const [ item, setItem ] = useState(false);
+    
+
+    console.log(item)
+
+    const handleSetters = () => {
+        setFocusItem(focus)
+        setWorkTime(work)
+        setIsFocusItem(true)
+    }
 
     return (
         <View style={ styles.container }>
-            { focusItem ?
+            { item ?
             <View style={ styles.pickerContainer }>
                 <Text style={ styles.pickerText }>How long would you like to focus?</Text>
                 <RNPickerSelect
                     style={ pickerSelectStyles }
-                    onValueChange={(value) => setWorkTime(value)}
+                    onValueChange={(value) => setWork(value)}
                     items={[
-                        { label: '25 minutes', value: '25 minutes' },
-                        { label: '50 minutes', value: '50 minutes' },
-                        { label: '75 minutes', value: '75 minutes' },
-                        { label: '100 minutes', value: '100 minutes' },
+                        { label: '25/5', value: { work: 25, break: 5 } },
+                        { label: '50/10', value: { work: 50, break: 10 } }
                     ]}
                 />
-                <Text style={ styles.pickerText }>How long would you like to take a break?</Text>
-                <RNPickerSelect
-                    style={ pickerSelectStyles }
-                    onValueChange={(value) => setBreakTime(value)}
-                    items={[
-                        { label: '5 minutes', value: '5 minutes' },
-                        { label: '10 minutes', value: '10 minutes' },
-                        { label: '15 minutes', value: '15 minutes' },
-                        { label: '30 minutes', value: '30 minutes' },
-                    ]}
-                />
+                <View
+                    style={ styles.buttonContainer }
+                >
+                    <ButtonComp 
+                        name="Submit"
+                        callback={ () => handleSetters() }
+                    />
+                </View>
             </View>
             :
             <View> 
             <Text style={ styles.text }>Hello</Text>
             <Text style={ styles.text }>What would you like to focus on?</Text>
-            <TextInput 
-                onEndEditing={ (text) => setFocusItem(text) }
-                style={ styles.textInput }
-            />
-            </View>
-            }
-            {
-                focusItem && workTime && breakTime ? 
-                <View>
-                    
+                <TextInput 
+                    onChangeText={ setFocus }
+                    style={ styles.textInput }
+                />
+                <View
+                    style={ styles.buttonContainer }
+                >
+                    <ButtonComp 
+                        name="Submit"
+                        callback={ () => setItem(true) }
+                    />
                 </View>
-                :
-                null
+            </View>
             }
         </View>
     )
@@ -78,15 +88,19 @@ const styles = StyleSheet.create({
 
         elevation: 12,
     },
+    buttonContainer: {
+        width: '100%',
+        marginTop: 20
+    },
     text: {
-        color: colors.white,
+        color: colors.black,
         textAlign: 'center',
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 10
     },
     pickerText: {
-        color: colors.white,
+        color: colors.black,
         textAlign: 'center',
         fontSize: 18,
         fontWeight: 'bold',
