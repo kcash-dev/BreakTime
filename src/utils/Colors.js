@@ -1,5 +1,8 @@
 export const colors = {
     black: '#000',
     white: '#fff',
-    neonGreen: '#39FF14'
+    primary: '#cdb4db',
+    secondary: '#e3d87e',
+    dark: '#0b1d51',
+    green: '#BBCEA8'
 }

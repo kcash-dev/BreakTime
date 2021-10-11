@@ -53,16 +53,17 @@ const styles = StyleSheet.create({
     button: {
         width: '100%',
         alignSelf: 'center',
-        backgroundColor: colors.neonGreen,
+        backgroundColor: colors.secondary,
         color: colors.black,
-        shadowColor: colors.neonGreen,
+        shadowColor: colors.black,
         shadowOffset: {
-          width: 0,
-          height: 9,
+            width: 0,
+            height: 5,
         },
-        shadowOpacity: 0.48,
-        shadowRadius: 11.95,
-        elevation: 18,
+        shadowOpacity: 0.34,
+        shadowRadius: 6.27,
+
+        elevation: 10,
     },
     buttonText: {
       color: colors.black,
@@ -73,16 +74,17 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '53%',
         alignSelf: 'center',
-        backgroundColor: colors.neonGreen,
+        backgroundColor: colors.secondary,
         color: colors.black,
-        shadowColor: colors.neonGreen,
+        shadowColor: colors.black,
         shadowOffset: {
-          width: 0,
-          height: 9,
+            width: 0,
+            height: 5,
         },
-        shadowOpacity: 0.48,
-        shadowRadius: 11.95,
-        elevation: 18,
+        shadowOpacity: 0.34,
+        shadowRadius: 6.27,
+
+        elevation: 10,
         justifyContent: 'center'
     }
 })

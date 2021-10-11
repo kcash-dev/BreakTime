@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { StyleSheet, Text, View, Platform, Vibration, Image } from 'react-native';
+import { useEffect } from 'react/cjs/react.development';
 import { colors } from '../utils/Colors';
+import { fontSizes, spacing } from '../utils/Sizes';
 import { ButtonComp, ControlButtonComp } from './Button';
 import { Countdown } from './Countdown';
 
@@ -12,10 +14,10 @@ export const Timer = ({
     workTime,
     breakTime
 }) => {
-    const [ workMinutes, setWorkMinutes ] = useState(workTime);
-    const [ breakMinutes, setBreakMinutes ] = useState(breakTime);
+    const [ time, setTime ] = useState(workTime);
     const [ isStarted, setIsStarted ] = useState(false);
-    const [ progress, setProgress ] = useState(1);
+    const [ workTimeOver, setWorkTimeOver ] = useState(false);
+    const [ howManyFocuses, setHowManyFocuses ] = useState(0);
 
     const setPlayPause = () => {
         if(isStarted) {
@@ -25,11 +27,32 @@ export const Timer = ({
         }
     }
 
+    console.log(howManyFocuses)
+
+    const vibrate = () => {
+        if (Platform.OS === 'ios') {
+            const interval = setInterval(() => Vibration.vibrate(), 1000);
+            setTimeout(() => clearInterval(interval), 10000)
+        } else {
+            Vibration.vibrate(10000)
+        }
+    }
+
     const onEnd = () => {
-        setWorkMinutes(workTime)
-        setBreakMinutes(breakTime)
-        setProgress(1)
         setIsStarted(false)
+        if (workTimeOver === false && howManyFocuses < 4) {
+            vibrate()
+            setTime(breakTime)
+            setWorkTimeOver(true)
+            setHowManyFocuses(howManyFocuses + 1)
+        } else if (workTimeOver === true) {
+            vibrate();
+            setTime(workTime)
+            setWorkTimeOver(false)
+        } else if (workTimeOver === false && howManyFocuses === 4) {
+            setTime(10)
+            setWorkTimeOver(true)
+        }
     }
 
     const handleSetters = () => {
@@ -41,15 +64,20 @@ export const Timer = ({
     return (
         <View style={ styles.timerContainer }>
             <View>
-                <Countdown 
-                    workTime={ workMinutes }
+                <Countdown
+                    time={ time }
                     isStarted={ !isStarted }
+                    onEnd={ onEnd }
                 />
             </View>
-            <View>
-                <Text style={ styles.text }>You are focusing on:</Text>
-                <Text style={ styles.focusText }>{ focusItem }</Text>
-            </View>
+            {!workTimeOver ? 
+                <View>
+                    <Text style={ styles.text }>You are focusing on:</Text>
+                    <Text style={ styles.focusText }>{ focusItem }</Text>
+                </View>
+                :
+                null
+            }
             <View style={ styles.buttonContainer }>
                 <ControlButtonComp name="Pause" altName="Start" callback={ setPlayPause } isPlaying={ isStarted }/>
             </View>
@@ -61,6 +89,24 @@ export const Timer = ({
                     callback={ handleSetters }
                 />
             </View>
+            {workTimeOver ? 
+                <View>
+                    <Text style={ styles.text }>TAKE A BREAK!</Text>
+                </View>
+                :
+                <Text style={ styles.text }>{ howManyFocuses }</Text>
+            }
+            {
+                howManyFocuses === 4 ? 
+                <View>
+                    <Image 
+                        source={{uri: 'https://i.imgur.com/IKUnOKf.gifv'}} 
+                        style={ styles.image }
+                    />
+                </View>
+                :
+                null
+            }
         </View>
     )
 }
@@ -75,19 +121,44 @@ const styles = StyleSheet.create({
         textAlign: 'center'
     },
     focusText: {
-        color: colors.black,
+        color: colors.secondary,
         textAlign: 'center',
         fontWeight: 'bold',
-        fontSize: 20
+        fontSize: fontSizes.xl,
+        textShadowColor: colors.black, 
+        textShadowOffset: { width: 0.5, height: 0.5 }, 
+        textShadowRadius: 1,
     },
     buttonContainer: {
         width: '100%',
         alignSelf: 'center',
-        marginTop: 20
+        marginTop: spacing.lg,
+        shadowColor: colors.black,
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: 0.34,
+        shadowRadius: 6.27,
+
+        elevation: 10,
     },
     restartButtonContainer: {
         position: 'absolute',
-        bottom: 50,
+        bottom: spacing.xxl,
         alignSelf: 'center',
+        shadowColor: colors.black,
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: 0.34,
+        shadowRadius: 6.27,
+
+        elevation: 10,
+    },
+    image: {
+        width: 100,
+        height: 100
     }
 })

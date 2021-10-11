@@ -4,12 +4,13 @@ import { colors } from '../utils/Colors';
 
 import RNPickerSelect from 'react-native-picker-select';
 import { ButtonComp } from './Button';
+import { fontSizes, spacing } from '../utils/Sizes';
 
 export const FocusItem = ({
     setFocusItem,
     setWorkTime,
-    setBreakTime,
-    setIsFocusItem
+    setIsFocusItem,
+    workTime
 }) => {
     const [ focus, setFocus ] = useState(null);
     const [ work, setWork ] = useState(0);
@@ -33,7 +34,7 @@ export const FocusItem = ({
                     style={ pickerSelectStyles }
                     onValueChange={(value) => setWork(value)}
                     items={[
-                        { label: '25/5', value: { work: 25, break: 5 } },
+                        { label: '25/5', value: { work: .5, break: .25 } },
                         { label: '50/10', value: { work: 50, break: 10 } }
                     ]}
                 />
@@ -72,63 +73,63 @@ const styles = StyleSheet.create({
     textInput: {
         backgroundColor: colors.white,
         width: '100%',
-        padding: 18,
+        padding: spacing.md,
         borderRadius: 8,
-        fontSize: 18
+        fontSize: fontSizes.md
     },
     container: {
         width: '75%',
-        shadowColor: colors.neonGreen,
+        shadowColor: colors.black,
         shadowOffset: {
             width: 0,
-            height: 6,
+            height: 5,
         },
-        shadowOpacity: 0.37,
-        shadowRadius: 7.49,
+        shadowOpacity: 0.34,
+        shadowRadius: 6.27,
 
-        elevation: 12,
+        elevation: 10,
     },
     buttonContainer: {
         width: '100%',
-        marginTop: 20
+        marginTop: spacing.lg
     },
     text: {
-        color: colors.black,
+        color: colors.dark,
         textAlign: 'center',
-        fontSize: 18,
+        fontSize: fontSizes.md,
         fontWeight: 'bold',
-        marginBottom: 10
+        marginBottom: spacing.sm
     },
     pickerText: {
         color: colors.black,
         textAlign: 'center',
-        fontSize: 18,
+        fontSize: fontSizes.md,
         fontWeight: 'bold',
-        marginVertical: 15
+        marginVertical: spacing.md
     }
 })
 
 const pickerSelectStyles = StyleSheet.create({
     inputIOS: {
-      fontSize: 18,
-      paddingVertical: 7.5,
-      paddingLeft: 5,
+      fontSize: fontSizes.md,
+      paddingVertical: spacing.sm,
+      paddingLeft: spacing.sm,
       borderColor: colors.neonGreen,
       borderBottomWidth: 1,
       borderRadius: 4,
       color: 'black',
-      color: colors.black,
+      color: colors.dark,
       backgroundColor: colors.white
     },
     inputAndroid: {
-        fontSize: 18,
-        paddingVertical: 7.5,
-        paddingLeft: 5,
+        fontSize: fontSizes.md,
+        paddingVertical: spacing.sm,
+        paddingLeft: spacing.sm,
         borderColor: colors.neonGreen,
         borderBottomWidth: 1,
         borderRadius: 4,
         color: 'black',
-        color: colors.black,
+        color: colors.dark,
         backgroundColor: colors.white
     },
   });
