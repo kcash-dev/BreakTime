@@ -9,7 +9,7 @@ import { colors } from '../utils/Colors';
 import { fontSizes } from '../utils/Sizes';
 
 const minutesToMillis = (min) => min * 1000 * 60;
-const formatTime = (time) => time < 10 ? `0${time}` : time;
+const formatTime = (timeEntered) => timeEntered < 10 ? `0${timeEntered}` : timeEntered;
 
 export const Countdown = ({
     time,
@@ -21,14 +21,18 @@ export const Countdown = ({
     const minute = Math.floor(timer / 1000 / 60) % 60;
     const seconds = Math.floor(timer / 1000) % 60;
 
+    const handleOnEnd = () => {
+        onEnd();
+    }
+
     const decrementTime = () => {
-        setTimer((time) => {
-            if(time === 0) {
+        setTimer((times) => {
+            if(times === 0) {
                 clearInterval(interval.current)
-                onEnd();
-                return time;
+                handleOnEnd();
+                return times;
             }
-            const timeLeft = time - 1000;
+            const timeLeft = times - 1000;
             return timeLeft;
         })
     }

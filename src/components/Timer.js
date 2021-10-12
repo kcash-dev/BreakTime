@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Platform, Vibration, Image } from 'react-native';
-import { useEffect } from 'react/cjs/react.development';
 import { colors } from '../utils/Colors';
 import { fontSizes, spacing } from '../utils/Sizes';
 import { ButtonComp, ControlButtonComp } from './Button';
 import { Countdown } from './Countdown';
+import { FontAwesome } from '@expo/vector-icons';
 
 export const Timer = ({
     focusItem, 
@@ -18,6 +18,8 @@ export const Timer = ({
     const [ isStarted, setIsStarted ] = useState(false);
     const [ workTimeOver, setWorkTimeOver ] = useState(false);
     const [ howManyFocuses, setHowManyFocuses ] = useState(0);
+    const [ howManyBreaks, setHowManyBreaks ] = useState(0);
+    const [ totalFocusBlocks, setTotalFocusBlocks ] = useState(0);
 
     const setPlayPause = () => {
         if(isStarted) {
@@ -26,8 +28,6 @@ export const Timer = ({
             setIsStarted(true)
         }
     }
-
-    console.log(howManyFocuses)
 
     const vibrate = () => {
         if (Platform.OS === 'ios') {
@@ -38,20 +38,62 @@ export const Timer = ({
         }
     }
 
+    let icon;
+
+    const setIcon = () => {
+        if (totalFocusBlocks === 0) {
+               icon = <FontAwesome name="battery-empty" size={24} color="black" />
+        } else if (totalFocusBlocks === .25) {
+               icon = <FontAwesome name="battery-quarter" size={24} color="black" />
+        } else if (totalFocusBlocks === .5) {
+                icon = <FontAwesome name="battery-half" size={24} color="black" />
+        } else if (totalFocusBlocks === .75) {
+                icon = <FontAwesome name="battery-three-quarters" size={24} color="black" />
+        } else if (totalFocusBlocks === 1) {
+               icon = <FontAwesome name="battery-full" size={24} color="black" />
+        }
+    }
+
+    useEffect(() => {
+        setIcon()
+    }, [ isStarted ])
+
     const onEnd = () => {
         setIsStarted(false)
-        if (workTimeOver === false && howManyFocuses < 4) {
+        if (workTimeOver === false && howManyFocuses < 3 && workTime === .25) {
             vibrate()
             setTime(breakTime)
             setWorkTimeOver(true)
             setHowManyFocuses(howManyFocuses + 1)
-        } else if (workTimeOver === true) {
+            setTotalFocusBlocks(totalFocusBlocks + .25)
+        } else if (workTimeOver === true && workTime === .25) {
             vibrate();
             setTime(workTime)
             setWorkTimeOver(false)
-        } else if (workTimeOver === false && howManyFocuses === 4) {
+            setHowManyBreaks(howManyBreaks + 1)
+        } else if (workTimeOver === false && howManyFocuses === 3 && howManyBreaks === 3 && workTime === .25) {
             setTime(10)
             setWorkTimeOver(true)
+            setHowManyFocuses(0)
+            setHowManyBreaks(0)
+            setTotalFocusBlocks(totalFocusBlocks + .25)
+        } else if (workTimeOver === false && howManyFocuses < 3 && workTime === .50) {
+            vibrate()
+            setTime(breakTime)
+            setWorkTimeOver(true)
+            setHowManyFocuses(howManyFocuses + 2)
+            setTotalFocusBlocks(totalFocusBlocks + .5)
+        } else if (workTimeOver === true && workTime === .50) {
+            vibrate();
+            setTime(workTime)
+            setWorkTimeOver(false)
+            setHowManyBreaks(howManyBreaks + 2)
+        } else if (workTimeOver === false && howManyFocuses === 2 && howManyBreaks === 2 && workTime === .50) {
+            setTime(20)
+            setWorkTimeOver(true)
+            setHowManyFocuses(0)
+            setHowManyBreaks(0)
+            setTotalFocusBlocks(totalFocusBlocks + .5)
         }
     }
 
@@ -70,7 +112,7 @@ export const Timer = ({
                     onEnd={ onEnd }
                 />
             </View>
-            {!workTimeOver ? 
+            { !workTimeOver ? 
                 <View>
                     <Text style={ styles.text }>You are focusing on:</Text>
                     <Text style={ styles.focusText }>{ focusItem }</Text>
@@ -79,7 +121,12 @@ export const Timer = ({
                 null
             }
             <View style={ styles.buttonContainer }>
-                <ControlButtonComp name="Pause" altName="Start" callback={ setPlayPause } isPlaying={ isStarted }/>
+                <ControlButtonComp 
+                    name="Pause" 
+                    altName="Start" 
+                    callback={ setPlayPause } 
+                    isPlaying={ isStarted }
+                />
             </View>
             <View
                 style={ styles.restartButtonContainer }
@@ -94,13 +141,12 @@ export const Timer = ({
                     <Text style={ styles.text }>TAKE A BREAK!</Text>
                 </View>
                 :
-                <Text style={ styles.text }>{ howManyFocuses }</Text>
+                <Text style={ styles.text }>{ icon }</Text>
             }
-            {
-                howManyFocuses === 4 ? 
-                <View>
+            { howManyFocuses === 4 && howManyBreaks === 3 && workTime === 25 || howManyFocuses === 4 && howManyBreaks === 2 && workTime === 50 ?
+                <View style={ styles.imageContainer }>
                     <Image 
-                        source={{uri: 'https://i.imgur.com/IKUnOKf.gifv'}} 
+                        source={{uri: 'https://i.imgur.com/aON4CyZ.jpg'}} 
                         style={ styles.image }
                     />
                 </View>
@@ -158,7 +204,13 @@ const styles = StyleSheet.create({
         elevation: 10,
     },
     image: {
-        width: 100,
-        height: 100
+        width: 250,
+        height: 250,
+        alignSelf: 'center'
+    },
+    imageContainer: {
+        position: 'absolute',
+        bottom: 100,
+        alignSelf: 'center'
     }
 })

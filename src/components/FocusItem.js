@@ -34,8 +34,8 @@ export const FocusItem = ({
                     style={ pickerSelectStyles }
                     onValueChange={(value) => setWork(value)}
                     items={[
-                        { label: '25/5', value: { work: .5, break: .25 } },
-                        { label: '50/10', value: { work: 50, break: 10 } }
+                        { label: '25/5', value: { work: .25, break: .1 } },
+                        { label: '50/10', value: { work: .5, break: .2 } }
                     ]}
                 />
                 <View
