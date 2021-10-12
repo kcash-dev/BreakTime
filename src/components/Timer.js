@@ -29,6 +29,8 @@ export const Timer = ({
         }
     }
 
+    console.log(howManyFocuses, "outside function", howManyBreaks, workTimeOver)
+
     const vibrate = () => {
         if (Platform.OS === 'ios') {
             const interval = setInterval(() => Vibration.vibrate(), 1000);
@@ -42,21 +44,19 @@ export const Timer = ({
 
     const setIcon = () => {
         if (totalFocusBlocks === 0) {
-               icon = <FontAwesome name="battery-empty" size={24} color="black" />
+               icon = <FontAwesome name="battery-empty" size={50} color="black" style={ styles.icon } />
         } else if (totalFocusBlocks === .25) {
-               icon = <FontAwesome name="battery-quarter" size={24} color="black" />
+               icon = <FontAwesome name="battery-quarter" size={50} color="black" style={ styles.icon } />
         } else if (totalFocusBlocks === .5) {
-                icon = <FontAwesome name="battery-half" size={24} color="black" />
+                icon = <FontAwesome name="battery-half" size={50} color="black" style={ styles.icon } />
         } else if (totalFocusBlocks === .75) {
-                icon = <FontAwesome name="battery-three-quarters" size={24} color="black" />
+                icon = <FontAwesome name="battery-three-quarters" size={50} color="black" style={ styles.icon } />
         } else if (totalFocusBlocks === 1) {
-               icon = <FontAwesome name="battery-full" size={24} color="black" />
+               icon = <FontAwesome name="battery-full" size={50} color="black" style={ styles.icon } />
         }
     }
 
-    useEffect(() => {
-        setIcon()
-    }, [ isStarted ])
+    setIcon();
 
     const onEnd = () => {
         setIsStarted(false)
@@ -77,7 +77,7 @@ export const Timer = ({
             setHowManyFocuses(0)
             setHowManyBreaks(0)
             setTotalFocusBlocks(totalFocusBlocks + .25)
-        } else if (workTimeOver === false && howManyFocuses < 3 && workTime === .50) {
+        } else if (workTimeOver === false && howManyFocuses < 2 && workTime === .50) {
             vibrate()
             setTime(breakTime)
             setWorkTimeOver(true)
@@ -141,9 +141,11 @@ export const Timer = ({
                     <Text style={ styles.text }>TAKE A BREAK!</Text>
                 </View>
                 :
-                <Text style={ styles.text }>{ icon }</Text>
+                <View>
+                    { icon }
+                </View>
             }
-            { howManyFocuses === 4 && howManyBreaks === 3 && workTime === 25 || howManyFocuses === 4 && howManyBreaks === 2 && workTime === 50 ?
+            { howManyFocuses === 4 && howManyBreaks === 3 && workTime === 25 || howManyFocuses === 2 && howManyBreaks === 2 && workTimeOver === false && workTime === .50 ?
                 <View style={ styles.imageContainer }>
                     <Image 
                         source={{uri: 'https://i.imgur.com/aON4CyZ.jpg'}} 
@@ -212,5 +214,9 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 100,
         alignSelf: 'center'
+    },
+    icon: {
+        alignSelf: 'center',
+        bottom: 40
     }
 })
