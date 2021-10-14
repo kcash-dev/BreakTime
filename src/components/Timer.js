@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, Platform, Vibration, Image } from 'react-native';
 import { colors } from '../utils/Colors';
 import { fontSizes, spacing } from '../utils/Sizes';
