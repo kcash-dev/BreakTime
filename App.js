@@ -1,44 +1,26 @@
-import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import * as React from 'react';
+import { View, Text } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { FocusItem } from './src/components/FocusItem';
-import { colors } from './src/utils/Colors';
-import { Timer } from './src/components/Timer';
+import { HomeScreen } from './src/screens/HomeScreen';
+import { SurveyScreen } from './src/screens/SurveyScreen';
 
-export default function App() {
+const Stack = createNativeStackNavigator();
 
-  const [ focusItem, setFocusItem ] = useState('');
-  const [ workTime, setWorkTime ] = useState('');
-  const [ isFocusItem, setIsFocusItem ] = useState(false);
-
+function App() {
   return (
-    <View style={styles.container}>
-      { focusItem && workTime ?
-        <Timer 
-          focusItem={ focusItem }
-          workTime={ workTime.work }
-          breakTime={ workTime.break }
-          setFocusItem={ setFocusItem }
-          setWorkTime={ setWorkTime }
-          setIsFocusItem={ setIsFocusItem }
-          isFocusItem={ isFocusItem }
-        />
-      :
-        <FocusItem 
-          setFocusItem={ setFocusItem }
-          setWorkTime={ setWorkTime }
-          setIsFocusItem={ setIsFocusItem }
-        />
-      }
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false
+        }}
+      >
+        <Stack.Screen name="Home" component={ HomeScreen } />
+        <Stack.Screen name="Survey" component={ SurveyScreen } />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;

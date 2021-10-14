@@ -6,6 +6,8 @@ import { ButtonComp, ControlButtonComp } from './Button';
 import { Countdown } from './Countdown';
 import { FontAwesome } from '@expo/vector-icons';
 
+import { useNavigation } from '@react-navigation/native';
+
 export const Timer = ({
     focusItem, 
     setFocusItem, 
@@ -20,6 +22,26 @@ export const Timer = ({
     const [ howManyFocuses, setHowManyFocuses ] = useState(0);
     const [ howManyBreaks, setHowManyBreaks ] = useState(0);
     const [ totalFocusBlocks, setTotalFocusBlocks ] = useState(0);
+    const [ notFocused, setNotFocused ] = useState(0);
+    const [ somewhatFocused, setSomewhatFocused ] = useState(0)
+    const [ veryFocused, setVeryFocused ] = useState(0)
+
+    const navigation = useNavigation();
+
+    const handleNotFocusedPress = () => {
+        setNotFocused(notFocused + 1)
+    }
+
+    const handleSomewhatFocusedPress = () => {
+        setSomewhatFocused(somewhatFocused + 1)
+    }
+    const handleVeryFocusedPress = () => {
+        setVeryFocused(veryFocused + 1)
+    }
+
+    console.log('notFocused:' + notFocused, 'somewhatFocused:' + somewhatFocused, 'veryFocused:' + veryFocused)
+
+    
 
     const setPlayPause = () => {
         if(isStarted) {
@@ -28,8 +50,6 @@ export const Timer = ({
             setIsStarted(true)
         }
     }
-
-    console.log(howManyFocuses, "outside function", howManyBreaks, workTimeOver)
 
     const vibrate = () => {
         if (Platform.OS === 'ios') {
@@ -66,6 +86,7 @@ export const Timer = ({
             setWorkTimeOver(true)
             setHowManyFocuses(howManyFocuses + 1)
             setTotalFocusBlocks(totalFocusBlocks + .25)
+            navigation.navigate('Survey', { handleNotFocusedPress, handleSomewhatFocusedPress, handleVeryFocusedPress })
         } else if (workTimeOver === true && workTime === .25) {
             vibrate();
             setTime(workTime)
@@ -77,12 +98,14 @@ export const Timer = ({
             setHowManyFocuses(0)
             setHowManyBreaks(0)
             setTotalFocusBlocks(totalFocusBlocks + .25)
+            navigation.navigate('Survey', { handleNotFocusedPress, handleSomewhatFocusedPress, handleVeryFocusedPress })
         } else if (workTimeOver === false && howManyFocuses < 2 && workTime === .50) {
             vibrate()
             setTime(breakTime)
             setWorkTimeOver(true)
             setHowManyFocuses(howManyFocuses + 2)
             setTotalFocusBlocks(totalFocusBlocks + .5)
+            navigation.navigate('Survey', { handleNotFocusedPress, handleSomewhatFocusedPress, handleVeryFocusedPress })
         } else if (workTimeOver === true && workTime === .50) {
             vibrate();
             setTime(workTime)
@@ -94,6 +117,7 @@ export const Timer = ({
             setHowManyFocuses(0)
             setHowManyBreaks(0)
             setTotalFocusBlocks(totalFocusBlocks + .5)
+            navigation.navigate('Survey', { handleNotFocusedPress, handleSomewhatFocusedPress, handleVeryFocusedPress })
         }
     }
 
@@ -145,7 +169,7 @@ export const Timer = ({
                     { icon }
                 </View>
             }
-            { howManyFocuses === 4 && howManyBreaks === 3 && workTime === 25 || howManyFocuses === 2 && howManyBreaks === 2 && workTimeOver === false && workTime === .50 ?
+            { howManyFocuses === 0 && howManyBreaks === 0 && workTimeOver === true ?
                 <View style={ styles.imageContainer }>
                     <Image 
                         source={{uri: 'https://i.imgur.com/aON4CyZ.jpg'}} 
