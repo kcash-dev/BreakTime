@@ -4,5 +4,6 @@ export const colors = {
     primary: '#cdb4db',
     secondary: '#e3d87e',
     dark: '#0b1d51',
-    green: '#BBCEA8'
+    green: '#BBCEA8',
+    red: 'red'
 }

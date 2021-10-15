@@ -1,28 +1,31 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux'
+import { StyleSheet, Text, View, TextInput } from 'react-native';
 import { colors } from '../utils/Colors';
 
 import RNPickerSelect from 'react-native-picker-select';
 import { ButtonComp } from './Button';
 import { fontSizes, spacing } from '../utils/Sizes';
 
+import { addTask } from '../store/taskAction';
+
 export const FocusItem = ({
     setFocusItem,
     setWorkTime,
-    setIsFocusItem,
-    workTime
+    setIsFocusItem
 }) => {
     const [ focus, setFocus ] = useState(null);
     const [ work, setWork ] = useState(0);
     const [ item, setItem ] = useState(false);
-    
 
-    console.log(item)
+    const dispatch = useDispatch();
+    const submitTask = (text) => dispatch(addTask(text));
 
     const handleSetters = () => {
         setFocusItem(focus)
         setWorkTime(work)
         setIsFocusItem(true)
+        submitTask(focus)
     }
 
     return (

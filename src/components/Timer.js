@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, Platform, Vibration, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, Platform, Vibration, Image, TouchableOpacity, FlatList } from 'react-native';
 import { colors } from '../utils/Colors';
 import { fontSizes, spacing } from '../utils/Sizes';
 import { ButtonComp, ControlButtonComp } from './Button';
@@ -7,6 +7,12 @@ import { Countdown } from './Countdown';
 import { FontAwesome } from '@expo/vector-icons';
 
 import { useNavigation } from '@react-navigation/native';
+import { Notification } from '../utils/Notification';
+
+import { setIcon } from '../utils/Functions';
+
+import { useDispatch, useSelector } from 'react-redux'
+import { didTask } from '../store/taskAction';
 
 export const Timer = ({
     focusItem, 
@@ -28,6 +34,17 @@ export const Timer = ({
 
     const navigation = useNavigation();
 
+    const dispatch = useDispatch();
+    const finishTask = (id) => dispatch(didTask(id));
+    const tasks = useSelector(state => state.tasks);
+
+    let foundTask;
+    const findTask = () => {
+        foundTask = tasks.find((item) => item.task === focusItem);
+    }
+
+    console.log(foundTask)
+
     const handleNotFocusedPress = () => {
         setNotFocused(notFocused + 1)
     }
@@ -38,10 +55,6 @@ export const Timer = ({
     const handleVeryFocusedPress = () => {
         setVeryFocused(veryFocused + 1)
     }
-
-    console.log('notFocused:' + notFocused, 'somewhatFocused:' + somewhatFocused, 'veryFocused:' + veryFocused)
-
-    
 
     const setPlayPause = () => {
         if(isStarted) {
@@ -76,8 +89,6 @@ export const Timer = ({
         }
     }
 
-    setIcon();
-
     const onEnd = () => {
         setIsStarted(false)
         if (workTimeOver === false && howManyFocuses < 3 && workTime === .25) {
@@ -87,6 +98,8 @@ export const Timer = ({
             setHowManyFocuses(howManyFocuses + 1)
             setTotalFocusBlocks(totalFocusBlocks + .25)
             navigation.navigate('Survey', { handleNotFocusedPress, handleSomewhatFocusedPress, handleVeryFocusedPress })
+            findTask()
+            finishTask(foundTask.id)
         } else if (workTimeOver === true && workTime === .25) {
             vibrate();
             setTime(workTime)
