@@ -5,15 +5,20 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 
 import { useSelector, useDispatch } from 'react-redux'
-import { deleteTask } from '../store/taskAction';
+import { removeTask } from '../store/taskAction';
 import { fontSizes } from '../utils/Sizes';
+import { ButtonComp } from '../components/Button';
+
+import { useNavigation } from '@react-navigation/native';
 
 export const ProfileScreen = () => {
     const dispatch = useDispatch();
-    console.log(tasks)
+    const navigation = useNavigation();
+    const navigateDoneTasks = () => navigation.navigate('TasksDone');
 
     const tasks = useSelector(state => state.tasks);
-    const removeTask = (id) => dispatch(deleteTask(id));
+    const data = tasks.filter((item) => item.done === false);
+    const removeActiveTask = (id) => dispatch(removeTask(id));
 
     return (
         <View style={ styles.container }>
@@ -28,7 +33,7 @@ export const ProfileScreen = () => {
             </View>
             <View style={ styles.dataContainer }>
                 <FlatList
-                    data={tasks}
+                    data={ data }
                     renderItem={({ item }) => (
                         <View style={ styles.itemContainer }>
                             <Pressable
@@ -42,7 +47,7 @@ export const ProfileScreen = () => {
                             >
                                 <Text style={ styles.itemText }>{item.task}</Text>
                             </Pressable>
-                            { item.task.done === null ? 
+                            { !tasks ? 
                                 null
                                 :
                                 <View>
@@ -60,13 +65,16 @@ export const ProfileScreen = () => {
                                         :
                                         1.0
                                 }]}
-                                onPress={() => removeTask(item.id)}
+                                onPress={() => removeActiveTask(item.id)}
                             >
                                 <Feather name="x" size={fontSizes.xl} color={ colors.red } style={ styles.icon }/>
                             </Pressable>
                         </View>
                     )}
                 />
+            </View>
+            <View style={ styles.buttonContainer }>
+                <ButtonComp name="Task History" callback={ navigateDoneTasks } />
             </View>
         </View>
     )
@@ -119,5 +127,10 @@ const styles = StyleSheet.create({
     },
     unfinishedText: {
         color: colors.red
+    },
+    buttonContainer: {
+        width: '100%',
+        alignItems: 'center',
+        alignContent: 'center'
     }
 })

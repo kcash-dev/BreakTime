@@ -10,7 +10,7 @@ import { fontSizes, spacing } from '../utils/Sizes';
 import { addTask } from '../store/taskAction';
 
 export const FocusItem = ({
-    setFocusItem,
+    setTask,
     setWorkTime,
     setIsFocusItem
 }) => {
@@ -22,10 +22,9 @@ export const FocusItem = ({
     const submitTask = (text) => dispatch(addTask(text));
 
     const handleSetters = () => {
-        setFocusItem(focus)
+        setTask(focus)
         setWorkTime(work)
         setIsFocusItem(true)
-        submitTask(focus)
     }
 
     return (

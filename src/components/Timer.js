@@ -12,7 +12,8 @@ import { Notification } from '../utils/Notification';
 import { setIcon } from '../utils/Functions';
 
 import { useDispatch, useSelector } from 'react-redux'
-import { didTask } from '../store/taskAction';
+import { didTask, removeTask } from '../store/taskAction';
+
 
 export const Timer = ({
     focusItem, 
@@ -36,11 +37,12 @@ export const Timer = ({
 
     const dispatch = useDispatch();
     const finishTask = (id) => dispatch(didTask(id));
+    const removeActiveTask = (id) => dispatch(removeTask(id));
     const tasks = useSelector(state => state.tasks);
 
     let foundTask;
     const findTask = () => {
-        foundTask = tasks.find((item) => item.task === focusItem);
+        foundTask = tasks.find((item) => item === focusItem[0]);
     }
 
     console.log(foundTask)
@@ -99,7 +101,9 @@ export const Timer = ({
             setTotalFocusBlocks(totalFocusBlocks + .25)
             navigation.navigate('Survey', { handleNotFocusedPress, handleSomewhatFocusedPress, handleVeryFocusedPress })
             findTask()
-            finishTask(foundTask.id)
+            if( focusItem !== foundTask.task ) {
+                finishTask(foundTask.id)
+            }
         } else if (workTimeOver === true && workTime === .25) {
             vibrate();
             setTime(workTime)
@@ -135,11 +139,16 @@ export const Timer = ({
     }
 
     const handleSetters = () => {
-        setFocusItem(null)
+        if(focusItem && howManyFocuses > 0) {
+            finishTask(foundTask.id)
+        } else if (focusItem && howManyFocuses === 0) {
+            removeActiveTask(foundTask.id)
+        }
+        setFocusItem('')
         setWorkTime('')
         setIsFocusItem(false)
     }
-     
+
     return (
         <View style={ styles.timerContainer }>
             <View>
@@ -152,7 +161,7 @@ export const Timer = ({
             { !workTimeOver ? 
                 <View>
                     <Text style={ styles.text }>You are focusing on:</Text>
-                    <Text style={ styles.focusText }>{ focusItem }</Text>
+                    <Text style={ styles.focusText }>{ focusItem[0].task }</Text>
                 </View>
                 :
                 null
