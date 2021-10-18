@@ -41,11 +41,12 @@ export const Timer = ({
     const tasks = useSelector(state => state.tasks);
 
     let foundTask;
-    const findTask = () => {
-        foundTask = tasks.find((item) => item === focusItem[0]);
+
+    if (focusItem) {
+        foundTask = tasks.find((item) => item.id === focusItem[0].id)
     }
 
-    console.log(foundTask)
+    console.log(foundTask, "— Found Task")
 
     const handleNotFocusedPress = () => {
         setNotFocused(notFocused + 1)
@@ -100,10 +101,6 @@ export const Timer = ({
             setHowManyFocuses(howManyFocuses + 1)
             setTotalFocusBlocks(totalFocusBlocks + .25)
             navigation.navigate('Survey', { handleNotFocusedPress, handleSomewhatFocusedPress, handleVeryFocusedPress })
-            findTask()
-            if( focusItem !== foundTask.task ) {
-                finishTask(foundTask.id)
-            }
         } else if (workTimeOver === true && workTime === .25) {
             vibrate();
             setTime(workTime)
@@ -139,13 +136,14 @@ export const Timer = ({
     }
 
     const handleSetters = () => {
-        if(focusItem && howManyFocuses > 0) {
+        if (howManyFocuses > 0) {
             finishTask(foundTask.id)
-        } else if (focusItem && howManyFocuses === 0) {
+        } else {
             removeActiveTask(foundTask.id)
         }
-        setFocusItem('')
-        setWorkTime('')
+        
+        // setFocusItem(null)
+        // setWorkTime('')
         setIsFocusItem(false)
     }
 
@@ -207,7 +205,7 @@ export const Timer = ({
 
 const styles = StyleSheet.create({
     timerContainer: {
-        marginTop: 100,
+        // marginTop: 100,
         flex: 1
     },
     text: {

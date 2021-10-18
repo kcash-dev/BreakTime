@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, SafeAreaView } from 'react-native';
 
 import { FocusItem } from '../components/FocusItem'
 import { colors } from '../utils/Colors';
@@ -16,13 +16,17 @@ export const HomeScreen = () => {
   const submitTask = (text) => dispatch(addTask(text));
 
   const tasks = useSelector(state => state.tasks)
+  console.log(tasks)
 
-  const focusItem = tasks.filter(item => item.done === false);
+  let focusItem;
+  if(tasks.filter(item => item.done === false)) {
+    focusItem = tasks.filter(item => item.done === false)
+  }
 
   return (
-    <View style={styles.container}>
-      { focusItem && workTime ?
-          <Timer 
+    <SafeAreaView style={styles.container}>
+      { isFocusItem ?
+          <Timer
             focusItem={ focusItem }
             workTime={ workTime.work }
             breakTime={ workTime.break }
@@ -38,7 +42,7 @@ export const HomeScreen = () => {
             setIsFocusItem={ setIsFocusItem }
           />
       }
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -33,7 +33,8 @@ export const ProfileScreen = () => {
             </View>
             <View style={ styles.dataContainer }>
                 <FlatList
-                    data={ data }
+                    data={ tasks }
+                    keyExtractor={item => item.id}
                     renderItem={({ item }) => (
                         <View style={ styles.itemContainer }>
                             <Pressable
@@ -51,7 +52,7 @@ export const ProfileScreen = () => {
                                 null
                                 :
                                 <View>
-                                    { item.task.done === true ? 
+                                    { item.finished === true ? 
                                         <Text style={ styles.finishedText }>Finished</Text>
                                         :
                                         <Text style={ styles.unfinishedText }>Unfinished</Text>

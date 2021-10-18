@@ -18,9 +18,6 @@ export const FocusItem = ({
     const [ work, setWork ] = useState(0);
     const [ item, setItem ] = useState(false);
 
-    const dispatch = useDispatch();
-    const submitTask = (text) => dispatch(addTask(text));
-
     const handleSetters = () => {
         setTask(focus)
         setWorkTime(work)
