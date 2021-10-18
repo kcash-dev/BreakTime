@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, Pressable, FlatList } from 'react-native';
+import { StyleSheet, Text, View, Image, Pressable, FlatList, SafeAreaView } from 'react-native';
 import { colors } from '../utils/Colors';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
@@ -12,19 +12,17 @@ import { ButtonComp } from '../components/Button';
 import { useNavigation } from '@react-navigation/native';
 
 export const ProfileScreen = () => {
-    const dispatch = useDispatch();
     const navigation = useNavigation();
     const navigateDoneTasks = () => navigation.navigate('TasksDone');
 
     const tasks = useSelector(state => state.tasks);
     const data = tasks.filter((item) => item.done === false);
-    const removeActiveTask = (id) => dispatch(removeTask(id));
 
     return (
-        <View style={ styles.container }>
+        <SafeAreaView style={ styles.container }>
             <View style={ styles.textContainer }>
                 <Text style={ styles.welcomeText }>
-                    Welcome, name. Here are your focus details.
+                    Here's what you focused on today.
                 </Text>
                 <Image 
                     style={ styles.profileImage }
@@ -59,17 +57,6 @@ export const ProfileScreen = () => {
                                     }
                                 </View>
                             }
-                            <Pressable
-                                style={({ pressed }) => [{
-                                    opacity: pressed ?
-                                        0.5
-                                        :
-                                        1.0
-                                }]}
-                                onPress={() => removeActiveTask(item.id)}
-                            >
-                                <Feather name="x" size={fontSizes.xl} color={ colors.red } style={ styles.icon }/>
-                            </Pressable>
                         </View>
                     )}
                 />
@@ -77,7 +64,7 @@ export const ProfileScreen = () => {
             <View style={ styles.buttonContainer }>
                 <ButtonComp name="Task History" callback={ navigateDoneTasks } />
             </View>
-        </View>
+        </SafeAreaView>
     )
 }
 

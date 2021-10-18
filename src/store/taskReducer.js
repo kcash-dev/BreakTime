@@ -1,4 +1,4 @@
-import { ADD_TASK, DELETE_TASK, DID_TASK, REMOVE_TASK } from "./taskTypes";
+import { ADD_TASK, DELETE_TASK, DID_TASK, REMOVE_TASK, UPDATE_TASK } from "./taskTypes";
 const initialState = {
     tasks: []
 }
@@ -8,7 +8,7 @@ const taskReducer = (state = initialState, action) => {
         return {
             ...state,
             tasks: [...state.tasks, {
-                    task: action.payload, done: false, finished: false, id: Math.random().toString()
+                    task: action.payload, done: false, finished: false, id: Math.random().toString(), focusTime: 0
                 }
             ]
         }  
@@ -41,6 +41,19 @@ const taskReducer = (state = initialState, action) => {
                     return {
                         ...item,
                         done: true
+                    }
+                })
+            }
+        case UPDATE_TASK:
+            return {
+                ...state,
+                tasks: state.tasks.map((item) => {
+                    if (item.id != action.payload.id) {
+                        return item;
+                    }
+                    return {
+                        ...item,
+                        focusTime: action.payload.focusTime
                     }
                 })
             }

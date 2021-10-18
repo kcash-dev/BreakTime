@@ -24,7 +24,7 @@ export const HomeScreen = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={ styles.container }>
       { isFocusItem ?
           <Timer
             focusItem={ focusItem }

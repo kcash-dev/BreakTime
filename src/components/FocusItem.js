@@ -7,8 +7,6 @@ import RNPickerSelect from 'react-native-picker-select';
 import { ButtonComp } from './Button';
 import { fontSizes, spacing } from '../utils/Sizes';
 
-import { addTask } from '../store/taskAction';
-
 export const FocusItem = ({
     setTask,
     setWorkTime,

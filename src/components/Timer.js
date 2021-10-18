@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Platform, Vibration, Image, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, Text, View, Platform, Vibration, Image } from 'react-native';
 import { colors } from '../utils/Colors';
 import { fontSizes, spacing } from '../utils/Sizes';
 import { ButtonComp, ControlButtonComp } from './Button';
@@ -12,7 +12,7 @@ import { Notification } from '../utils/Notification';
 import { setIcon } from '../utils/Functions';
 
 import { useDispatch, useSelector } from 'react-redux'
-import { didTask, removeTask } from '../store/taskAction';
+import { didTask, removeTask, updateTask } from '../store/taskAction';
 
 
 export const Timer = ({
@@ -31,13 +31,14 @@ export const Timer = ({
     const [ totalFocusBlocks, setTotalFocusBlocks ] = useState(0);
     const [ notFocused, setNotFocused ] = useState(0);
     const [ somewhatFocused, setSomewhatFocused ] = useState(0)
-    const [ veryFocused, setVeryFocused ] = useState(0)
+    const [ veryFocused, setVeryFocused ] = useState(0);
 
     const navigation = useNavigation();
 
     const dispatch = useDispatch();
     const finishTask = (id) => dispatch(didTask(id));
     const removeActiveTask = (id) => dispatch(removeTask(id));
+    const updateTaskTime = (id, value) => dispatch(updateTask({ id, value }))
     const tasks = useSelector(state => state.tasks);
 
     let foundTask;
@@ -137,6 +138,12 @@ export const Timer = ({
 
     const handleSetters = () => {
         if (howManyFocuses > 0) {
+            const totalFocusTime = totalFocusBlocks * workTime
+            const payload = {
+                id: foundTask.id,
+                focusTime: totalFocusTime
+            }
+            updateTaskTime(payload)
             finishTask(foundTask.id)
         } else {
             removeActiveTask(foundTask.id)
