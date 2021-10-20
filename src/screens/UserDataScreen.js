@@ -6,13 +6,23 @@ import { ButtonComp } from '../components/Button';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utils/Colors';
 import { fontSizes } from '../utils/Sizes';
+import { auth } from '../auth/firebase';
 
-const UserDataScreen = () => {
+const UserDataScreen = ({ setLogged }) => {
     const navigation = useNavigation();
     const navigateDoneTasks = () => navigation.navigate('TasksDone');
 
     const tasks = useSelector(state => state.tasks);
     const data = tasks.filter((item) => item.done === false);
+
+    const handleSignOut = () => {
+        auth
+        .signOut()
+        .then(() => {
+            setLogged(false)
+        })
+        .catch(err => alert(err.message))
+    }
 
     return (
         <SafeAreaView style={ styles.container }>
@@ -59,6 +69,9 @@ const UserDataScreen = () => {
             </View>
             <View style={ styles.buttonContainer }>
                 <ButtonComp name="Task History" callback={ navigateDoneTasks } />
+            </View>
+            <View style={[ styles.buttonContainer, { marginTop: 40 } ]}>
+                <ButtonComp name="Sign Out" callback={ handleSignOut }/>
             </View>
         </SafeAreaView>
     )
