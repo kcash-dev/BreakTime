@@ -5,17 +5,22 @@ import { ButtonComp } from '../components/Button';
 import { colors } from '../utils/Colors';
 import { fontSizes, spacing } from '../utils/Sizes';
 import { SimpleLineIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
-export const LoginScreen = ({ setLogged }) => {
+export const LoginScreen = () => {
     const [ email, setEmail ] = useState('')
     const [ password, setPassword ] = useState('')
-    const [ isRegistered, setIsRegistered ] = useState(true)
+    const [ isRegistered, setIsRegistered ] = useState(true);
+    const [ isLoggedIn, setIsLoggedIn ] = useState(false)
+
+    const navigation = useNavigation();
 
     useEffect(() => {
         const unsubscribe = auth
         .onAuthStateChanged(user => {
             if (user) {
-                setLogged(true)
+                setIsLoggedIn(true)
+                navigation.navigate('ProfileScreen')
             }
         })
 
@@ -36,7 +41,9 @@ export const LoginScreen = ({ setLogged }) => {
       }
 
     const handleSignup = () => {
-        if (!password) {
+        if(!email) {
+            Alert.alert('Must enter a valid email')
+        } else if (!password) {
             Alert.alert('Must enter a valid password')
         }
 
@@ -46,7 +53,7 @@ export const LoginScreen = ({ setLogged }) => {
             const user = userCredentials.user
             console.log('Registered with: ' + user.email)
         })
-        .catch(err => console.log(err.message))
+        .catch(err => err.message === "The email address is already in use by another account." ? Alert.alert(err.message) : console.log(err.message))
     }
 
     const handleLogin = () => {
@@ -73,6 +80,7 @@ export const LoginScreen = ({ setLogged }) => {
            {
                isRegistered ? 
                <View style={ styles.inputContainer }>
+                <Text style={ styles.header }>User Login</Text>
                 <View style={ styles.parent }>
                     <TextInput
                         placeholder="Email"
@@ -129,6 +137,7 @@ export const LoginScreen = ({ setLogged }) => {
                </View>
                :
                <View style={ styles.inputContainer }>
+                   <Text style={ styles.header }>User Registration</Text>
                     <View style={ styles.parent }>
                         <TextInput
                             placeholder="Email"
@@ -138,7 +147,17 @@ export const LoginScreen = ({ setLogged }) => {
                             autoCapitalize="none"
                             ref={input => { textInput = input }} 
                         />
-                        <SimpleLineIcons style={ styles.icon } name="close" size={24} color="black" />
+                        <Pressable
+                            style={({ pressed }) => ({
+                                opacity: pressed ?
+                                    0.5
+                                    :
+                                    1
+                            })}
+                            onPress={() => setEmail('')}
+                        >
+                            <SimpleLineIcons style={ styles.icon } name="close" size={24} color="black" />
+                        </Pressable>
                     </View>
                     <View style={ styles.parent }>
                         <TextInput
@@ -148,7 +167,17 @@ export const LoginScreen = ({ setLogged }) => {
                             style={ styles.input }
                             secureTextEntry
                         />
-                        <SimpleLineIcons style={ styles.icon } name="close" size={24} color="black" />
+                        <Pressable
+                            style={({ pressed }) => ({
+                                opacity: pressed ?
+                                    0.5
+                                    :
+                                    1
+                            })}
+                            onPress={() => setPassword('')}
+                        >
+                            <SimpleLineIcons style={ styles.icon } name="close" size={24} color="black" />
+                        </Pressable>
                     </View>
                     <ButtonComp name="Register" callback={ handleSignup }/>
                     <Pressable
@@ -180,7 +209,7 @@ const styles = StyleSheet.create({
         marginTop: 20
     },
     inputContainer: {
-        width: '60%',
+        width: '80%',
         shadowColor: colors.black,
         shadowOffset: {
             width: 0,
@@ -194,7 +223,7 @@ const styles = StyleSheet.create({
     input: {
         padding: spacing.md,
         fontSize: fontSizes.md,
-        width: '80%'
+        width: '90%'
     },
     parent: {
         flexDirection: 'row',
@@ -202,11 +231,16 @@ const styles = StyleSheet.create({
         backgroundColor: colors.white,
         borderRadius: 8,
         justifyContent: 'space-between',
-        marginVertical: spacing.md
-
+        marginVertical: spacing.md,
+        width: '100%'
     },
     icon: {
         right: 5,
         opacity: 0.5
+    },
+    header: {
+        fontSize: fontSizes.xxl,
+        textAlign: 'center',
+        bottom: 20
     }
 })

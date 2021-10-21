@@ -8,7 +8,7 @@ import { colors } from '../utils/Colors';
 import { fontSizes } from '../utils/Sizes';
 import { auth } from '../auth/firebase';
 
-const UserDataScreen = ({ setLogged }) => {
+const UserDataScreen = () => {
     const navigation = useNavigation();
     const navigateDoneTasks = () => navigation.navigate('TasksDone');
 
@@ -19,7 +19,7 @@ const UserDataScreen = ({ setLogged }) => {
         auth
         .signOut()
         .then(() => {
-            setLogged(false)
+            navigation.navigate('Login')
         })
         .catch(err => alert(err.message))
     }

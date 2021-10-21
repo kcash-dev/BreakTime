@@ -10,6 +10,7 @@ import { colors } from './src/utils/Colors';
 
 import store from './src/store/store'
 import { Provider } from 'react-redux'
+import { ProfileNav } from './src/navigators/ProfileNav';
 
 const Tab = createBottomTabNavigator();
 
@@ -39,7 +40,7 @@ function App() {
           })}
         >
           <Tab.Screen name="Home" component={ StackNav } />
-          <Tab.Screen name="Profile" component={ ProfileScreen } />
+          <Tab.Screen name="Profile" component={ ProfileNav } />
         </Tab.Navigator>
       </NavigationContainer>
     </Provider>
