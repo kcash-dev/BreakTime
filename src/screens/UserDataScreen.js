@@ -1,14 +1,35 @@
-import React from 'react';
-import { StyleSheet, Text, View, Image, Pressable, FlatList, SafeAreaView } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, Image, Pressable, FlatList, SafeAreaView, requireNativeComponent } from 'react-native';
 
 import { useSelector } from 'react-redux'
 import { ButtonComp } from '../components/Button';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utils/Colors';
 import { fontSizes } from '../utils/Sizes';
-import { auth } from '../auth/firebase';
+import { auth, db, currentUser } from '../api/Firebase'
+import { useEffect } from 'react';
 
 const UserDataScreen = () => {
+    const [ username, setUsername ] = useState('')
+
+    useEffect(() => {
+        const users = [];
+        db.collection('users').get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    if (doc.id === currentUser.uid) {
+                    let wholeName = doc.data().firstName + " " + doc.data().lastName
+                    users.push(wholeName)
+                }
+            })
+        })
+        
+        setUsername(users)
+    }, [])
+
+    console.log(username)
+    console.log(currentUser, "current user uid")
+
     const navigation = useNavigation();
     const navigateDoneTasks = () => navigation.navigate('TasksDone');
 
@@ -28,7 +49,7 @@ const UserDataScreen = () => {
         <SafeAreaView style={ styles.container }>
             <View style={ styles.textContainer }>
                 <Text style={ styles.welcomeText }>
-                    Here's what you focused on today.
+                  { username }, here's what you focused on today.
                 </Text>
                 <Image 
                     style={ styles.profileImage }
