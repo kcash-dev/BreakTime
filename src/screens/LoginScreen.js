@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, View, StyleSheet, Text, TextInput, Pressable, Alert } from 'react-native'
-import { auth } from '../auth/firebase';
+import { auth, handleSignup, handleLogin } from '../api/Firebase'
 import { ButtonComp } from '../components/Button';
 import { colors } from '../utils/Colors';
 import { fontSizes, spacing } from '../utils/Sizes';
@@ -10,6 +10,8 @@ import { useNavigation } from '@react-navigation/native';
 export const LoginScreen = () => {
     const [ email, setEmail ] = useState('')
     const [ password, setPassword ] = useState('')
+    const [ firstName, setFirstName ] = useState('')
+    const [ lastName, setLastName ] = useState('')
     const [ isRegistered, setIsRegistered ] = useState(true);
     const [ isLoggedIn, setIsLoggedIn ] = useState(false)
 
@@ -27,49 +29,12 @@ export const LoginScreen = () => {
         return unsubscribe;
     }, [])
 
-    const validate = (text) => {
-        console.log(text);
-        setEmail(text)
-        let reg = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
-        if (email.test(reg) === false) {
-          Alert.alert('Must enter a valid email')
-        }
-        else {
-          setEmail(text)
-          console.log("Email is Correct");
-        }
-      }
-
-    const handleSignup = () => {
-        if(!email) {
-            Alert.alert('Must enter a valid email')
-        } else if (!password) {
-            Alert.alert('Must enter a valid password')
-        }
-
-        auth
-        .createUserWithEmailAndPassword(email, password)
-        .then(userCredentials => {
-            const user = userCredentials.user
-            console.log('Registered with: ' + user.email)
-        })
-        .catch(err => err.message === "The email address is already in use by another account." ? Alert.alert(err.message) : console.log(err.message))
+    const login = () => {
+        handleLogin(email, password)
     }
 
-    const handleLogin = () => {
-        if(!email) {
-            Alert.alert('Must enter a valid email')
-        } else if (!password) {
-            Alert.alert('Must enter a valid password')
-        }
-
-        auth
-        .signInWithEmailAndPassword(email, password)
-        .then(userCredentials => {
-            const user = userCredentials.user
-            console.log('Logged in with: ' + user.email)
-        })
-        .catch(err => console.log(err.message))
+    const signup = () => {
+        handleSignup(email, password, firstName, lastName)
     }
 
     return (
@@ -122,7 +87,7 @@ export const LoginScreen = () => {
                         <SimpleLineIcons style={ styles.icon } name="close" size={24} color="black" />
                     </Pressable>
                 </View>
-                <ButtonComp name="Login" callback={ handleLogin }/>
+                <ButtonComp name="Login" callback={ login }/>
                 <Pressable
                     style={({ pressed }) => ({
                         opacity: pressed ?
@@ -179,7 +144,45 @@ export const LoginScreen = () => {
                             <SimpleLineIcons style={ styles.icon } name="close" size={24} color="black" />
                         </Pressable>
                     </View>
-                    <ButtonComp name="Register" callback={ handleSignup }/>
+                    <View style={ styles.parent }>
+                        <TextInput
+                            placeholder="First name"
+                            value={ firstName }
+                            onChangeText={ text => setFirstName(text) }
+                            style={ styles.input }
+                        />
+                        <Pressable
+                            style={({ pressed }) => ({
+                                opacity: pressed ?
+                                    0.5
+                                    :
+                                    1
+                            })}
+                            onPress={() => setFirstName('')}
+                        >
+                            <SimpleLineIcons style={ styles.icon } name="close" size={24} color="black" />
+                        </Pressable>
+                    </View>
+                    <View style={ styles.parent }>
+                        <TextInput
+                            placeholder="Last Name"
+                            value={ lastName }
+                            onChangeText={ text => setLastName(text) }
+                            style={ styles.input }
+                        />
+                        <Pressable
+                            style={({ pressed }) => ({
+                                opacity: pressed ?
+                                    0.5
+                                    :
+                                    1
+                            })}
+                            onPress={() => setLastName('')}
+                        >
+                            <SimpleLineIcons style={ styles.icon } name="close" size={24} color="black" />
+                        </Pressable>
+                    </View>
+                    <ButtonComp name="Register" callback={ signup }/>
                     <Pressable
                         style={({ pressed }) => ({
                             opacity: pressed ?
