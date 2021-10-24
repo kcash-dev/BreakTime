@@ -1,34 +1,35 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, Pressable, FlatList, SafeAreaView, requireNativeComponent } from 'react-native';
+import { StyleSheet, Text, View, Image, Pressable, FlatList, SafeAreaView, requireNativeComponent, Alert } from 'react-native';
+import * as firebase from 'firebase';
 
 import { useSelector } from 'react-redux'
 import { ButtonComp } from '../components/Button';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utils/Colors';
 import { fontSizes } from '../utils/Sizes';
-import { auth, db, currentUser } from '../api/Firebase'
+import { auth, currentUserUID, db } from '../api/Firebase'
 import { useEffect } from 'react';
 
 const UserDataScreen = () => {
     const [ username, setUsername ] = useState('')
 
     useEffect(() => {
-        const users = [];
-        db.collection('users').get()
-            .then(snapshot => {
-                snapshot.forEach(doc => {
-                    if (doc.id === currentUser.uid) {
-                    let wholeName = doc.data().firstName + " " + doc.data().lastName
-                    users.push(wholeName)
-                }
-            })
-        })
-        
-        setUsername(users)
-    }, [])
+        async function getUserInfo() {
+            let doc = await db
+            .collection('users')
+            .doc(currentUserUID)
+            .get();
 
-    console.log(username)
-    console.log(currentUser, "current user uid")
+            if(!doc.exists) {
+                Alert.alert('No user data found!')
+            } else {
+                let dataObj = doc.data();
+                setUsername(dataObj.firstName)
+            }
+        }
+
+        getUserInfo();
+    }, [])
 
     const navigation = useNavigation();
     const navigateDoneTasks = () => navigation.navigate('TasksDone');

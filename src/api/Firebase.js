@@ -14,21 +14,15 @@ if (firebase.apps.length === 0) {
 
 const auth = firebase.auth()
 const db = firebase.firestore();
-const currentUser = auth.currentUser
+let currentUserUID;
 
-
-const users = [];
-// async function getCurrentUserName() {
-//     const currentUser = auth.currentUser;
-//     const usersRef = db.collection('users');
-//     const snapshot = await usersRef.get();
-//     let name;
-//     snapshot.forEach(doc => {
-//         if (doc.id === currentUser.uid) {
-//             users.push(doc.data().firstName + ' ' + doc.data().lastName)
-//         }
-//     })
-// }
+auth.onAuthStateChanged((user) => {
+    if(user) {
+        currentUserUID = user.uid
+    } else {
+        return;
+    }
+})
 
 
 async function handleSignup(email, password, firstName, lastName) {
@@ -73,4 +67,4 @@ async function handleLogin(email, password) {
     .catch(err => console.log(err.message))
 }
 
-export { db, auth, handleSignup, handleLogin, currentUser };
+export { db, auth, handleSignup, handleLogin, currentUserUID };

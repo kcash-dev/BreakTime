@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Platform, Vibration, Image } from 'react-native';
+import { StyleSheet, Text, View, Platform, Vibration, Image, Alert } from 'react-native';
 import { colors } from '../utils/Colors';
 import { fontSizes, spacing } from '../utils/Sizes';
 import { ButtonComp, ControlButtonComp } from './Button';
@@ -13,6 +13,7 @@ import { setIcon } from '../utils/Functions';
 
 import { useDispatch, useSelector } from 'react-redux'
 import { didTask, removeTask, updateTask } from '../store/taskAction';
+import { currentUserUID, db } from '../api/Firebase';
 
 
 export const Timer = ({
@@ -46,8 +47,6 @@ export const Timer = ({
     if (focusItem) {
         foundTask = tasks.find((item) => item.id === focusItem[0].id)
     }
-
-    console.log(foundTask, "— Found Task")
 
     const handleNotFocusedPress = () => {
         setNotFocused(notFocused + 1)
@@ -136,6 +135,24 @@ export const Timer = ({
         }
     }
 
+    async function addTask() {
+        let doc = await db
+            .collection('users')
+            .doc(currentUserUID)
+            .collection('tasks')
+            .get();
+
+        if (!doc.exists) {
+            await db
+            .collection('users')
+            .doc(currentUserUID)
+            .update({
+                tasks: tasks
+            })
+            .then(console.log('Task added!'))
+        }
+    }
+
     const handleSetters = () => {
         if (howManyFocuses > 0) {
             const totalFocusTime = totalFocusBlocks * workTime
@@ -145,13 +162,14 @@ export const Timer = ({
             }
             updateTaskTime(payload)
             finishTask(foundTask.id)
+
         } else {
             removeActiveTask(foundTask.id)
         }
-        
-        // setFocusItem(null)
-        // setWorkTime('')
+        setCompletedTasks(...completedTasks, focusItem)
+        console.log(completedTasks)
         setIsFocusItem(false)
+        addTask()
     }
 
     return (
