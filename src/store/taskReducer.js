@@ -53,7 +53,7 @@ const taskReducer = (state = initialState, action) => {
                     }
                     return {
                         ...item,
-                        focusTime: action.payload.focusTime
+                        focusTime: action.payload.value
                     }
                 })
             }

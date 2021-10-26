@@ -35,7 +35,6 @@ const UserDataScreen = () => {
     const navigateDoneTasks = () => navigation.navigate('TasksDone');
 
     const tasks = useSelector(state => state.tasks);
-    const data = tasks.filter((item) => item.done === false);
 
     const handleSignOut = () => {
         auth

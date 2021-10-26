@@ -9,17 +9,13 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Notification } from '../utils/Notification';
 
-import { setIcon } from '../utils/Functions';
-
 import { useDispatch, useSelector } from 'react-redux'
 import { didTask, removeTask, updateTask } from '../store/taskAction';
 import { currentUserUID, db } from '../api/Firebase';
-
+import * as firebase from 'firebase';
 
 export const Timer = ({
-    focusItem, 
-    setFocusItem, 
-    setWorkTime, 
+    focusItem,
     setIsFocusItem,
     workTime,
     breakTime
@@ -33,13 +29,14 @@ export const Timer = ({
     const [ notFocused, setNotFocused ] = useState(0);
     const [ somewhatFocused, setSomewhatFocused ] = useState(0)
     const [ veryFocused, setVeryFocused ] = useState(0);
+    const [ totalFocusTime, setTotalFocusTime ] = useState(0)
 
     const navigation = useNavigation();
 
     const dispatch = useDispatch();
     const finishTask = (id) => dispatch(didTask(id));
     const removeActiveTask = (id) => dispatch(removeTask(id));
-    const updateTaskTime = (id, value) => dispatch(updateTask({ id, value }))
+    const updateTaskTime = (id, value) => dispatch(updateTask({ id: id, value: value }))
     const tasks = useSelector(state => state.tasks);
 
     let foundTask;
@@ -73,22 +70,6 @@ export const Timer = ({
             setTimeout(() => clearInterval(interval), 10000)
         } else {
             Vibration.vibrate(10000)
-        }
-    }
-
-    let icon;
-
-    const setIcon = () => {
-        if (totalFocusBlocks === 0) {
-               icon = <FontAwesome name="battery-empty" size={50} color="black" style={ styles.icon } />
-        } else if (totalFocusBlocks === .25) {
-               icon = <FontAwesome name="battery-quarter" size={50} color="black" style={ styles.icon } />
-        } else if (totalFocusBlocks === .5) {
-                icon = <FontAwesome name="battery-half" size={50} color="black" style={ styles.icon } />
-        } else if (totalFocusBlocks === .75) {
-                icon = <FontAwesome name="battery-three-quarters" size={50} color="black" style={ styles.icon } />
-        } else if (totalFocusBlocks === 1) {
-               icon = <FontAwesome name="battery-full" size={50} color="black" style={ styles.icon } />
         }
     }
 
@@ -142,34 +123,54 @@ export const Timer = ({
             .collection('tasks')
             .get();
 
+        let incrementValue = totalFocusBlocks * workTime
+        const increment = firebase.firestore.FieldValue.increment(incrementValue)
+        console.log(increment)
+        
         if (!doc.exists) {
             await db
             .collection('users')
             .doc(currentUserUID)
+            .set({
+                tasks: tasks,
+            }, { merge: true })
+            .then(console.log('Task updated!'))
+    
+            await db
+            .collection('users')
+            .doc(currentUserUID)
             .update({
-                tasks: tasks
+                totalFocusTime: increment
             })
-            .then(console.log('Task added!'))
+        } else {
+            await db
+            .collection('users')
+            .doc(currentUserUID)
+            .add({
+                tasks: tasks,
+                totalFocusTime: totalFocusBlocks * workTime
+            })
+            .then(() => {
+                console.log('Task added!')
+            })
         }
     }
 
     const handleSetters = () => {
         if (howManyFocuses > 0) {
-            const totalFocusTime = totalFocusBlocks * workTime
-            const payload = {
-                id: foundTask.id,
-                focusTime: totalFocusTime
-            }
-            updateTaskTime(payload)
+            const sessionFocusTime = totalFocusBlocks * workTime
+            console.log(sessionFocusTime, "SESSION FOCUS TIME")
+            // const payload = {
+            //     id: foundTask.id,
+            //     focusTime: sessionFocusTime
+            // }
+            updateTaskTime(foundTask.id, sessionFocusTime)
+            addTask()
             finishTask(foundTask.id)
-
         } else {
             removeActiveTask(foundTask.id)
         }
-        setCompletedTasks(...completedTasks, focusItem)
-        console.log(completedTasks)
         setIsFocusItem(false)
-        addTask()
     }
 
     return (
@@ -210,9 +211,7 @@ export const Timer = ({
                     <Text style={ styles.text }>TAKE A BREAK!</Text>
                 </View>
                 :
-                <View>
-                    { icon }
-                </View>
+                null
             }
             { howManyFocuses === 0 && howManyBreaks === 0 && workTimeOver === true ?
                 <View style={ styles.imageContainer }>
@@ -230,7 +229,6 @@ export const Timer = ({
 
 const styles = StyleSheet.create({
     timerContainer: {
-        // marginTop: 100,
         flex: 1
     },
     text: {
@@ -283,9 +281,5 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 100,
         alignSelf: 'center'
-    },
-    icon: {
-        alignSelf: 'center',
-        bottom: 40
     }
 })
