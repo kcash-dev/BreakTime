@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Text, SafeAreaView, Pressable, Alert } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, Text, SafeAreaView, Pressable, Alert, Dimensions } from 'react-native';
 import { ButtonComp } from '../components/Button';
 import { colors } from '../utils/Colors';
 import { fontSizes } from '../utils/Sizes';
@@ -11,12 +11,31 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import { db, currentUserUID } from '../api/Firebase';
 
+import {
+    LineChart,
+    BarChart,
+    PieChart,
+    ProgressChart,
+    ContributionGraph,
+    StackedBarChart
+  } from "react-native-chart-kit";
+
+const screenWidth = Dimensions.get('window').width
+
 export const TasksDone = () => {
     const tasks = useSelector(state => state.tasks)
     const [ tasksDone, setTasksDone ] = useState([])
+    const [ totalFocusTime, setTotalFocusTime ] = useState(0)
+    const [ howFocused, setHowFocused ] = useState([])
 
     const dispatch = useDispatch();
     const foreverDeleteTask = (id) => dispatch(deleteTask(id));
+
+    const chartConfig = {
+        backgroundGradientFrom: '#1E2923',
+        backgroundGradientTo: '#08130D',
+        color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`
+    }
 
     useEffect(() => {
         async function getUserTasks() {
@@ -26,17 +45,27 @@ export const TasksDone = () => {
             .get()
 
             const taskList = doc.data().tasks
+            const focusTime = doc.data().totalFocusTime
+            const noFocus = doc.data().notFocused
+            const somewhatFocus = doc.data().somewhatFocused
+            const veryFocus = doc.data().veryFocused
 
             if(!doc.exists) {
                 Alert.alert('No data found!')
             } else {
                 setTasksDone(taskList)
+                setTotalFocusTime(focusTime)
+                setHowFocused([
+                    { name: 'Not Focused', number: noFocus, color: 'rgba(131, 167, 234, 1)', legendFontColor: '#7F7F7F', legendFontSize: 10 }, 
+                    { name: 'Somewhat Focused', number: somewhatFocus, color: '#F00', legendFontColor: '#7F7F7F', legendFontSize: 10 }, 
+                    { name: 'Very Focused', number: veryFocus, color: 'rgb(0, 0, 255)', legendFontColor: '#7F7F7F', legendFontSize: 10 }
+                ])
             }
 
         }
 
         getUserTasks();
-    }, [])
+    }, [  ])
 
     return (
         <SafeAreaView style={ styles.container }>
@@ -68,7 +97,14 @@ export const TasksDone = () => {
                 />
             </View>
             <View style={ styles.infoContainer }>
-                
+                <Text>Total Focus Time: { totalFocusTime }</Text>
+                <PieChart
+                    data={ howFocused }
+                    width={ screenWidth }
+                    height={ 200 }
+                    chartConfig={ chartConfig }
+                    accessor="number"
+                />
             </View>
         </SafeAreaView>
     )
@@ -99,6 +135,8 @@ const styles = StyleSheet.create({
         height: '50%'
     },
     infoContainer: {
-        height: '50%'
+        height: '50%',
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 })

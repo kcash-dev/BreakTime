@@ -29,7 +29,6 @@ export const Timer = ({
     const [ notFocused, setNotFocused ] = useState(0);
     const [ somewhatFocused, setSomewhatFocused ] = useState(0)
     const [ veryFocused, setVeryFocused ] = useState(0);
-    const [ totalFocusTime, setTotalFocusTime ] = useState(0)
 
     const navigation = useNavigation();
 
@@ -123,24 +122,30 @@ export const Timer = ({
             .collection('tasks')
             .get();
 
-        let incrementValue = totalFocusBlocks * workTime
-        const increment = firebase.firestore.FieldValue.increment(incrementValue)
-        console.log(increment)
+        let incrementFocus = totalFocusBlocks * workTime
+        const incrementFocusTime = firebase.firestore.FieldValue.increment(incrementFocus)
+        const incrementNoFocus = firebase.firestore.FieldValue.increment(notFocused)
+        const incrementSomeFocus = firebase.firestore.FieldValue.increment(somewhatFocused)
+        const incrementVeryFocus = firebase.firestore.FieldValue.increment(veryFocused)
         
-        if (!doc.exists) {
+        
+        if (doc.exists) {
             await db
             .collection('users')
             .doc(currentUserUID)
-            .set({
+            .update({
                 tasks: tasks,
-            }, { merge: true })
+            })
             .then(console.log('Task updated!'))
     
             await db
             .collection('users')
             .doc(currentUserUID)
             .update({
-                totalFocusTime: increment
+                totalFocusTime: incrementFocusTime,
+                notFocused: incrementNoFocus,
+                somewhatFocused: incrementSomeFocus,
+                veryFocused: incrementVeryFocus
             })
         } else {
             await db
@@ -148,7 +153,10 @@ export const Timer = ({
             .doc(currentUserUID)
             .add({
                 tasks: tasks,
-                totalFocusTime: totalFocusBlocks * workTime
+                totalFocusTime: totalFocusBlocks * workTime,
+                notFocused: notFocused,
+                somewhatFocused: somewhatFocused,
+                veryFocused: veryFocused
             })
             .then(() => {
                 console.log('Task added!')
@@ -158,13 +166,13 @@ export const Timer = ({
 
     const handleSetters = () => {
         if (howManyFocuses > 0) {
-            const sessionFocusTime = totalFocusBlocks * workTime
-            console.log(sessionFocusTime, "SESSION FOCUS TIME")
+            // const sessionFocusTime = totalFocusBlocks * workTime
+            // console.log(sessionFocusTime, "SESSION FOCUS TIME")
             // const payload = {
             //     id: foundTask.id,
             //     focusTime: sessionFocusTime
             // }
-            updateTaskTime(foundTask.id, sessionFocusTime)
+            // updateTaskTime(foundTask.id, sessionFocusTime)
             addTask()
             finishTask(foundTask.id)
         } else {
