@@ -1,4 +1,4 @@
-import { ADD_TASK, DELETE_TASK, DID_TASK, REMOVE_TASK, UPDATE_TASK } from "./taskTypes"
+import { ADD_TASK, DELETE_TASK, DID_TASK, LOG_OUT, REMOVE_TASK, UPDATE_TASK } from "./taskTypes"
 export const addTask = (task) => ({
     type: ADD_TASK,
     payload: task
@@ -18,4 +18,8 @@ export const removeTask = (id) => ({
 export const updateTask = (payload) => ({
     type: UPDATE_TASK,
     payload: payload
+})
+
+export const logout = () => ({
+    type: LOG_OUT
 })

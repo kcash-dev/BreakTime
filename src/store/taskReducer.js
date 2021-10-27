@@ -1,4 +1,4 @@
-import { ADD_TASK, DELETE_TASK, DID_TASK, REMOVE_TASK, UPDATE_TASK } from "./taskTypes";
+import { ADD_TASK, DELETE_TASK, DID_TASK, LOG_OUT, REMOVE_TASK, UPDATE_TASK } from "./taskTypes";
 const initialState = {
     tasks: []
 }
@@ -56,6 +56,10 @@ const taskReducer = (state = initialState, action) => {
                         focusTime: action.payload.totalFocusTime
                     }
                 })
+            }
+        case LOG_OUT:
+            return {
+                tasks: initialState
             }
         default:
             return state;

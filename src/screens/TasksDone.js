@@ -14,6 +14,8 @@ import { db, currentUserUID } from '../api/Firebase';
 import {
     PieChart
   } from "react-native-chart-kit";
+import { useNavigation } from '@react-navigation/native';
+
 
 const screenWidth = Dimensions.get('window').width
 
@@ -23,6 +25,8 @@ export const TasksDone = () => {
     const [ totalFocusTime, setTotalFocusTime ] = useState(0)
     const [ howFocused, setHowFocused ] = useState([])
 
+    const navigation = useNavigation();
+
     const dispatch = useDispatch();
     const foreverDeleteTask = (id) => dispatch(deleteTask(id));
 
@@ -30,6 +34,10 @@ export const TasksDone = () => {
         backgroundGradientFrom: '#1E2923',
         backgroundGradientTo: '#08130D',
         color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`
+    }
+
+    function goBack() {
+        navigation.pop();
     }
 
     useEffect(() => {
@@ -112,6 +120,9 @@ export const TasksDone = () => {
                     accessor="number"
                 />
             </View>
+            <View style={ styles.buttonContainer }>
+                <ButtonComp name="Go Back"callback={ goBack }/>
+            </View>
         </SafeAreaView>
     )
 }
@@ -130,19 +141,24 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
-        alignItems: 'center',
-        marginVertical: 10
+        alignItems: 'center'
     },
     heading: {
         fontSize: fontSizes.xl,
         textAlign: 'center'
     },
     listContainer: {
-        height: '50%'
+        height: '40%',
+        backgroundColor: colors.white,
     },
     infoContainer: {
-        height: '50%',
+        height: '40%',
         justifyContent: 'center',
         alignItems: 'center'
+    },
+    buttonContainer: {
+        height: '20%',
+        width: '50%',
+        alignSelf: 'center'
     }
 })

@@ -19,8 +19,13 @@ export const HomeScreen = () => {
   console.log(tasks)
 
   let focusItem;
-  if(tasks.filter(item => item.done === false)) {
-    focusItem = tasks.filter(item => item.done === false)
+
+  if (!tasks.length) {
+    focusItem = null;
+  } else {
+    if(tasks.filter(item => item.done === false)) {
+      focusItem = tasks.filter(item => item.done === false)
+    }
   }
 
   return (

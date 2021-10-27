@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, Pressable, FlatList, SafeAreaView, requireNativeComponent, Alert } from 'react-native';
-import * as firebase from 'firebase';
+import { StyleSheet, Text, View, Image, Pressable, FlatList, SafeAreaView, Alert } from 'react-native';
 
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { logout } from '../store/taskAction';
 import { ButtonComp } from '../components/Button';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utils/Colors';
@@ -12,6 +12,8 @@ import { useEffect } from 'react';
 
 const UserDataScreen = () => {
     const [ username, setUsername ] = useState('')
+    const dispatch = useDispatch();
+    const clearStateLogout = () => dispatch(logout())
 
     useEffect(() => {
         async function getUserInfo() {
@@ -37,6 +39,7 @@ const UserDataScreen = () => {
     const tasks = useSelector(state => state.tasks);
 
     const handleSignOut = () => {
+        clearStateLogout();
         auth
         .signOut()
         .then(() => {

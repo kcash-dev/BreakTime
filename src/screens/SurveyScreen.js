@@ -10,15 +10,14 @@ import * as firebase from 'firebase';
 
 export const SurveyScreen = () => {
     const navigation = useNavigation();
+    const incrementFocusType = firebase.firestore.FieldValue.increment(1)
     
     async function noFocusFunc() {
-        const incrementNoFocus = firebase.firestore.FieldValue.increment(1)
-
         await db
             .collection('users')
             .doc(currentUserUID)
             .update({
-                notFocused: incrementNoFocus,
+                notFocused: incrementFocusType,
             })
             .then(() => console.log('Update sent! No focus!'))
         
@@ -26,13 +25,11 @@ export const SurveyScreen = () => {
     }
     
     async function someFocusFunc() {
-        const incrementSomeFocus = firebase.firestore.FieldValue.increment(1)
-
         await db
             .collection('users')
             .doc(currentUserUID)
             .update({
-                somewhatFocused: incrementSomeFocus,
+                somewhatFocused: incrementFocusType,
             })
             .then(() => console.log('Update sent! Some focus!'))
         
@@ -40,13 +37,11 @@ export const SurveyScreen = () => {
     }
     
     async function vFocusFunc () {
-        const incrementVeryFocus = firebase.firestore.FieldValue.increment(1)
-
         await db
             .collection('users')
             .doc(currentUserUID)
             .update({
-                veryFocused: incrementVeryFocus,
+                veryFocused: incrementFocusType,
             })
             .then(() => console.log('Update sent! Very focus!'))
         

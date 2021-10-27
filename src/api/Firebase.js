@@ -48,6 +48,9 @@ async function handleSignup(email, password, firstName, lastName) {
         email: currentUser.email,
         lastName: lastName,
         firstName: firstName,
+        notFocused: 0,
+        somewhatFocused: 0,
+        veryFocused: 0
       });
 }
 
@@ -64,7 +67,7 @@ async function handleLogin(email, password) {
         const user = userCredentials.user
         console.log('Logged in with: ' + user.email)
     })
-    .catch(err => console.log(err.message))
+    .catch(err => console.log(Alert.alert(err.message)))
 }
 
 export { db, auth, handleSignup, handleLogin, currentUserUID };

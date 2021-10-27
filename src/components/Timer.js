@@ -108,9 +108,9 @@ export const Timer = ({
         await db
         .collection('users')
         .doc(currentUserUID)
-        .update({
+        .set({
             tasks: tasks,
-        })
+        }, { merge: true })
         .then(console.log('Task updated!'))
 
         await db
