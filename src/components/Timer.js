@@ -4,7 +4,6 @@ import { colors } from '../utils/Colors';
 import { fontSizes, spacing } from '../utils/Sizes';
 import { ButtonComp, ControlButtonComp } from './Button';
 import { Countdown } from './Countdown';
-import { FontAwesome } from '@expo/vector-icons';
 
 import { useNavigation } from '@react-navigation/native';
 import { Notification } from '../utils/Notification';
@@ -26,16 +25,12 @@ export const Timer = ({
     const [ howManyFocuses, setHowManyFocuses ] = useState(0);
     const [ howManyBreaks, setHowManyBreaks ] = useState(0);
     const [ totalFocusBlocks, setTotalFocusBlocks ] = useState(0);
-    const [ notFocused, setNotFocused ] = useState(0);
-    const [ somewhatFocused, setSomewhatFocused ] = useState(0)
-    const [ veryFocused, setVeryFocused ] = useState(0);
 
     const navigation = useNavigation();
 
     const dispatch = useDispatch();
     const finishTask = (id) => dispatch(didTask(id));
     const removeActiveTask = (id) => dispatch(removeTask(id));
-    const updateTaskTime = (id, value) => dispatch(updateTask({ id: id, value: value }))
     const tasks = useSelector(state => state.tasks);
 
     let foundTask;
@@ -44,16 +39,7 @@ export const Timer = ({
         foundTask = tasks.find((item) => item.id === focusItem[0].id)
     }
 
-    const handleNotFocusedPress = () => {
-        setNotFocused(notFocused + 1)
-    }
-
-    const handleSomewhatFocusedPress = () => {
-        setSomewhatFocused(somewhatFocused + 1)
-    }
-    const handleVeryFocusedPress = () => {
-        setVeryFocused(veryFocused + 1)
-    }
+    console.log(foundTask)
 
     const setPlayPause = () => {
         if(isStarted) {
@@ -80,7 +66,7 @@ export const Timer = ({
             setWorkTimeOver(true)
             setHowManyFocuses(howManyFocuses + 1)
             setTotalFocusBlocks(totalFocusBlocks + .25)
-            navigation.navigate('Survey', { handleNotFocusedPress, handleSomewhatFocusedPress, handleVeryFocusedPress })
+            navigation.navigate('Survey')
         } else if (workTimeOver === true && workTime === .25) {
             vibrate();
             setTime(workTime)
@@ -92,14 +78,14 @@ export const Timer = ({
             setHowManyFocuses(0)
             setHowManyBreaks(0)
             setTotalFocusBlocks(totalFocusBlocks + .25)
-            navigation.navigate('Survey', { handleNotFocusedPress, handleSomewhatFocusedPress, handleVeryFocusedPress })
+            navigation.navigate('Survey')
         } else if (workTimeOver === false && howManyFocuses < 2 && workTime === .50) {
             vibrate()
             setTime(breakTime)
             setWorkTimeOver(true)
             setHowManyFocuses(howManyFocuses + 2)
             setTotalFocusBlocks(totalFocusBlocks + .5)
-            navigation.navigate('Survey', { handleNotFocusedPress, handleSomewhatFocusedPress, handleVeryFocusedPress })
+            navigation.navigate('Survey')
         } else if (workTimeOver === true && workTime === .50) {
             vibrate();
             setTime(workTime)
@@ -111,68 +97,32 @@ export const Timer = ({
             setHowManyFocuses(0)
             setHowManyBreaks(0)
             setTotalFocusBlocks(totalFocusBlocks + .5)
-            navigation.navigate('Survey', { handleNotFocusedPress, handleSomewhatFocusedPress, handleVeryFocusedPress })
+            navigation.navigate('Survey')
         }
     }
 
     async function addTask() {
-        let doc = await db
-            .collection('users')
-            .doc(currentUserUID)
-            .collection('tasks')
-            .get();
-
         let incrementFocus = totalFocusBlocks * workTime
         const incrementFocusTime = firebase.firestore.FieldValue.increment(incrementFocus)
-        const incrementNoFocus = firebase.firestore.FieldValue.increment(notFocused)
-        const incrementSomeFocus = firebase.firestore.FieldValue.increment(somewhatFocused)
-        const incrementVeryFocus = firebase.firestore.FieldValue.increment(veryFocused)
         
-        
-        if (doc.exists) {
-            await db
-            .collection('users')
-            .doc(currentUserUID)
-            .update({
-                tasks: tasks,
-            })
-            .then(console.log('Task updated!'))
-    
-            await db
-            .collection('users')
-            .doc(currentUserUID)
-            .update({
-                totalFocusTime: incrementFocusTime,
-                notFocused: incrementNoFocus,
-                somewhatFocused: incrementSomeFocus,
-                veryFocused: incrementVeryFocus
-            })
-        } else {
-            await db
-            .collection('users')
-            .doc(currentUserUID)
-            .add({
-                tasks: tasks,
-                totalFocusTime: totalFocusBlocks * workTime,
-                notFocused: notFocused,
-                somewhatFocused: somewhatFocused,
-                veryFocused: veryFocused
-            })
-            .then(() => {
-                console.log('Task added!')
-            })
-        }
+        await db
+        .collection('users')
+        .doc(currentUserUID)
+        .update({
+            tasks: tasks,
+        })
+        .then(console.log('Task updated!'))
+
+        await db
+        .collection('users')
+        .doc(currentUserUID)
+        .update({
+            totalFocusTime: incrementFocusTime
+        })
     }
 
     const handleSetters = () => {
         if (howManyFocuses > 0) {
-            // const sessionFocusTime = totalFocusBlocks * workTime
-            // console.log(sessionFocusTime, "SESSION FOCUS TIME")
-            // const payload = {
-            //     id: foundTask.id,
-            //     focusTime: sessionFocusTime
-            // }
-            // updateTaskTime(foundTask.id, sessionFocusTime)
             addTask()
             finishTask(foundTask.id)
         } else {
@@ -193,7 +143,7 @@ export const Timer = ({
             { !workTimeOver ? 
                 <View>
                     <Text style={ styles.text }>You are focusing on:</Text>
-                    <Text style={ styles.focusText }>{ focusItem[0].task }</Text>
+                    <Text style={ styles.focusText }>{ foundTask.task }</Text>
                 </View>
                 :
                 null
@@ -214,7 +164,7 @@ export const Timer = ({
                     callback={ handleSetters }
                 />
             </View>
-            {workTimeOver ? 
+            { workTimeOver ? 
                 <View>
                     <Text style={ styles.text }>TAKE A BREAK!</Text>
                 </View>

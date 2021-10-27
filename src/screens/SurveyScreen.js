@@ -1,28 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { ButtonComp } from '../components/Button';
 import { colors } from '../utils/Colors';
 
 import { useNavigation } from '@react-navigation/native';
 import { fontSizes } from '../utils/Sizes';
+import { db, currentUserUID } from '../api/Firebase';
+import * as firebase from 'firebase';
 
-export const SurveyScreen = ({ route }) => {
+export const SurveyScreen = () => {
     const navigation = useNavigation();
+    
+    async function noFocusFunc() {
+        const incrementNoFocus = firebase.firestore.FieldValue.increment(1)
 
-    const { handleNotFocusedPress, handleSomewhatFocusedPress, handleVeryFocusedPress } = route.params;
-    
-    const noFocusFunc = () => {
-        handleNotFocusedPress();
-        navigation.pop();
+        await db
+            .collection('users')
+            .doc(currentUserUID)
+            .update({
+                notFocused: incrementNoFocus,
+            })
+            .then(() => console.log('Update sent! No focus!'))
+        
+        navigation.pop()
     }
     
-    const someFocusFunc = () => {
-        handleSomewhatFocusedPress();
-        navigation.pop();
+    async function someFocusFunc() {
+        const incrementSomeFocus = firebase.firestore.FieldValue.increment(1)
+
+        await db
+            .collection('users')
+            .doc(currentUserUID)
+            .update({
+                somewhatFocused: incrementSomeFocus,
+            })
+            .then(() => console.log('Update sent! Some focus!'))
+        
+        navigation.pop()
     }
-    const vFocusFunc = () => {
-        handleVeryFocusedPress()
-        navigation.pop();
+    
+    async function vFocusFunc () {
+        const incrementVeryFocus = firebase.firestore.FieldValue.increment(1)
+
+        await db
+            .collection('users')
+            .doc(currentUserUID)
+            .update({
+                veryFocused: incrementVeryFocus,
+            })
+            .then(() => console.log('Update sent! Very focus!'))
+        
+        navigation.pop()
     }
 
     return (

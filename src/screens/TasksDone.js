@@ -12,12 +12,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { db, currentUserUID } from '../api/Firebase';
 
 import {
-    LineChart,
-    BarChart,
-    PieChart,
-    ProgressChart,
-    ContributionGraph,
-    StackedBarChart
+    PieChart
   } from "react-native-chart-kit";
 
 const screenWidth = Dimensions.get('window').width
@@ -56,16 +51,27 @@ export const TasksDone = () => {
                 setTasksDone(taskList)
                 setTotalFocusTime(focusTime)
                 setHowFocused([
-                    { name: 'Not Focused', number: noFocus, color: 'rgba(131, 167, 234, 1)', legendFontColor: '#7F7F7F', legendFontSize: 10 }, 
-                    { name: 'Somewhat Focused', number: somewhatFocus, color: '#F00', legendFontColor: '#7F7F7F', legendFontSize: 10 }, 
-                    { name: 'Very Focused', number: veryFocus, color: 'rgb(0, 0, 255)', legendFontColor: '#7F7F7F', legendFontSize: 10 }
+                    { name: 'Not Focused', number: noFocus, color: 'rgba(131, 167, 234, 1)', legendFontColor: '#000', legendFontSize: 10 }, 
+                    { name: 'Somewhat Focused', number: somewhatFocus, color: '#F00', legendFontColor: '#000', legendFontSize: 10 }, 
+                    { name: 'Very Focused', number: veryFocus, color: 'rgb(0, 0, 255)', legendFontColor: '#000', legendFontSize: 10 }
                 ])
             }
 
         }
 
         getUserTasks();
-    }, [  ])
+    }, [])
+
+    function timeConvert(n) {
+        var num = n;
+        var hours = (num / 60);
+        var rhours = Math.floor(hours);
+        var minutes = (hours - rhours) * 60;
+        var rminutes = Math.round(minutes);
+        return rhours + " hour(s) and " + rminutes + " minute(s).";
+    }
+
+    let totalTime = timeConvert(totalFocusTime)
 
     return (
         <SafeAreaView style={ styles.container }>
@@ -97,7 +103,7 @@ export const TasksDone = () => {
                 />
             </View>
             <View style={ styles.infoContainer }>
-                <Text>Total Focus Time: { totalFocusTime }</Text>
+                <Text>Total Focus Time: { totalTime }</Text>
                 <PieChart
                     data={ howFocused }
                     width={ screenWidth }

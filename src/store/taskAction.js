@@ -15,7 +15,7 @@ export const removeTask = (id) => ({
     type: REMOVE_TASK,
     payload: id
 })
-export const updateTask = (id, focusTime) => ({
+export const updateTask = (payload) => ({
     type: UPDATE_TASK,
-    payload: {id, focusTime}
+    payload: payload
 })
