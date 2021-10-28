@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { TasksDone } from '../screens/TasksDone';
 import { LoginScreen } from '../screens/LoginScreen';
+import { UserDataScreen } from '../screens/UserDataScreen'
 import { ProfileScreen } from '../screens/ProfileScreen';
 
 const Stack = createNativeStackNavigator();
@@ -16,7 +17,7 @@ export const ProfileNav = () => {
         }}
       >
         <Stack.Screen name="Login" component={ LoginScreen } />
-        <Stack.Screen name="ProfileScreen" component={ ProfileScreen } />
+        <Stack.Screen name="ProfileScreen" component={ UserDataScreen } />
         <Stack.Screen name="TasksDone" component={ TasksDone } />
       </Stack.Navigator>
   );

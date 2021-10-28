@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { View } from 'react-native'
 
-import UserDataScreen from './UserDataScreen';
+import { UserDataScreen } from './UserDataScreen';
+import { db, currentUserUID } from '../api/Firebase';
+import { LoginScreen } from './LoginScreen';
 
 export const ProfileScreen = () => {
+
     return (
         <View style={{ flex: 1 }}>
-            <UserDataScreen />
+            { currentUserUID ?
+                <UserDataScreen />
+                :
+                <LoginScreen />
+            }
         </View>
     )
 }

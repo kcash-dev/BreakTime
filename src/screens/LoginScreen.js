@@ -13,7 +13,6 @@ export const LoginScreen = () => {
     const [ firstName, setFirstName ] = useState('')
     const [ lastName, setLastName ] = useState('')
     const [ isRegistered, setIsRegistered ] = useState(true);
-    const [ isLoggedIn, setIsLoggedIn ] = useState(false)
 
     const navigation = useNavigation();
 
@@ -21,7 +20,6 @@ export const LoginScreen = () => {
         const unsubscribe = auth
         .onAuthStateChanged(user => {
             if (user) {
-                setIsLoggedIn(true)
                 navigation.navigate('ProfileScreen')
             }
         })

@@ -7,13 +7,29 @@ import { ButtonComp } from '../components/Button';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utils/Colors';
 import { fontSizes } from '../utils/Sizes';
-import { auth, currentUserUID, db } from '../api/Firebase'
+import { auth, currentUserUID, db, handleSignOut } from '../api/Firebase'
 import { useEffect } from 'react';
 
-const UserDataScreen = () => {
+export const UserDataScreen = () => {
     const [ username, setUsername ] = useState('')
     const dispatch = useDispatch();
     const clearStateLogout = () => dispatch(logout())
+
+    function logoutUser() {
+        clearStateLogout();
+        handleSignOut();
+    }
+
+    useEffect(() => {
+        const unsubscribe = auth
+        .onAuthStateChanged(user => {
+            if (!user) {
+                navigation.navigate('Login')
+            }
+        })
+
+        return unsubscribe;
+    }, [])
 
     useEffect(() => {
         async function getUserInfo() {
@@ -37,16 +53,6 @@ const UserDataScreen = () => {
     const navigateDoneTasks = () => navigation.navigate('TasksDone');
 
     const tasks = useSelector(state => state.tasks);
-
-    const handleSignOut = () => {
-        clearStateLogout();
-        auth
-        .signOut()
-        .then(() => {
-            navigation.navigate('Login')
-        })
-        .catch(err => alert(err.message))
-    }
 
     return (
         <SafeAreaView style={ styles.container }>
@@ -72,7 +78,6 @@ const UserDataScreen = () => {
                                         :
                                         1.0
                                 }]}
-                                // onPress={() => }
                             >
                                 <Text style={ styles.itemText }>{item.task}</Text>
                             </Pressable>
@@ -95,13 +100,11 @@ const UserDataScreen = () => {
                 <ButtonComp name="Task History" callback={ navigateDoneTasks } />
             </View>
             <View style={[ styles.buttonContainer, { marginTop: 40 } ]}>
-                <ButtonComp name="Sign Out" callback={ handleSignOut }/>
+                <ButtonComp name="Sign Out" callback={ logoutUser }/>
             </View>
         </SafeAreaView>
     )
 }
-
-export default UserDataScreen
 
 const styles = StyleSheet.create({
     container: {

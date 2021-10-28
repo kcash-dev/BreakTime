@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, Platform, Vibration, Image, Alert } from 'react-native';
 import { colors } from '../utils/Colors';
 import { fontSizes, spacing } from '../utils/Sizes';
@@ -6,12 +6,11 @@ import { ButtonComp, ControlButtonComp } from './Button';
 import { Countdown } from './Countdown';
 
 import { useNavigation } from '@react-navigation/native';
-import { Notification } from '../utils/Notification';
 
 import { useDispatch, useSelector } from 'react-redux'
 import { didTask, removeTask, updateTask } from '../store/taskAction';
 import { currentUserUID, db } from '../api/Firebase';
-import * as firebase from 'firebase';
+// import { firestore } from '../api/Firestore';
 
 export const Timer = ({
     focusItem,
@@ -108,9 +107,9 @@ export const Timer = ({
         await db
         .collection('users')
         .doc(currentUserUID)
-        .set({
-            tasks: tasks,
-        }, { merge: true })
+        .update({
+            tasks: firestore.FieldValue.arrayUnion(tasks),
+        })
         .then(console.log('Task updated!'))
 
         await db

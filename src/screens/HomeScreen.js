@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, SafeAreaView } from 'react-native';
+import { StyleSheet, SafeAreaView } from 'react-native';
 
 import { FocusItem } from '../components/FocusItem'
 import { colors } from '../utils/Colors';

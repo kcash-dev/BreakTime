@@ -2,7 +2,8 @@
 import * as firebase from 'firebase';
 import "firebase/firestore"
 import apiKeys from '../config/Keys';
-import { Alert } from 'react-native'
+import { Alert } from 'react-native';
+
 
 // Initialize Firebase
 let app;
@@ -24,7 +25,7 @@ auth.onAuthStateChanged((user) => {
     }
 })
 
-
+// SIGN UP
 async function handleSignup(email, password, firstName, lastName) {
     if(!email) {
         Alert.alert('Must enter a valid email')
@@ -54,6 +55,7 @@ async function handleSignup(email, password, firstName, lastName) {
       });
 }
 
+//SIGN IN
 async function handleLogin(email, password) {
     if(!email) {
         Alert.alert('Must enter a valid email')
@@ -70,4 +72,16 @@ async function handleLogin(email, password) {
     .catch(err => console.log(Alert.alert(err.message)))
 }
 
-export { db, auth, handleSignup, handleLogin, currentUserUID };
+//LOGOUT
+
+async function handleSignOut() {
+    auth
+    .signOut()
+    .then(() => {
+        console.log('FIRED')
+    })
+    .catch(err => alert(err.message))
+}
+
+//EXPORT
+export { db, auth, handleSignup, handleLogin, handleSignOut, currentUserUID };
