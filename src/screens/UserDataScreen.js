@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 
 export const UserDataScreen = () => {
     const [ username, setUsername ] = useState('')
+    const [ tasks, setTasks ] = useState([])
     const dispatch = useDispatch();
     const clearStateLogout = () => dispatch(logout())
 
@@ -31,28 +32,47 @@ export const UserDataScreen = () => {
         return unsubscribe;
     }, [])
 
-    useEffect(() => {
-        async function getUserInfo() {
-            let doc = await db
-            .collection('users')
-            .doc(currentUserUID)
-            .get();
+    async function getUserInfo() {
+        let doc = await db
+        .collection('users')
+        .doc(currentUserUID)
+        .get();
 
-            if(!doc.exists) {
-                Alert.alert('No user data found!')
-            } else {
-                let dataObj = doc.data();
-                setUsername(dataObj.firstName)
-            }
+        if(!doc.exists) {
+            Alert.alert('No user data found!')
+        } else {
+            let dataObj = doc.data();
+            setUsername(dataObj.firstName)
         }
+    }
 
+    useEffect(() => {
         getUserInfo();
     }, [])
 
+    const listening = db.collection('users').doc(currentUserUID).collection('tasks');
+    const observer = listening.onSnapshot(docSnapshot => {
+        return;
+    }, err => {
+        console.log(err)
+    })
+
+    async function getUserTasks() {
+        let doc = await db
+            .collection('users')
+            .doc(currentUserUID)
+            .get()
+
+            const taskList = doc.data().tasks
+            setTasks(taskList)
+    }
+
+    useEffect(() => {
+        getUserTasks()
+    }, [ observer ])
+
     const navigation = useNavigation();
     const navigateDoneTasks = () => navigation.navigate('TasksDone');
-
-    const tasks = useSelector(state => state.tasks);
 
     return (
         <SafeAreaView style={ styles.container }>

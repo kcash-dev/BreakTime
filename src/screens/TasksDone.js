@@ -6,29 +6,27 @@ import { fontSizes } from '../utils/Sizes';
 
 import { Feather } from '@expo/vector-icons';
 
-import { deleteTask } from '../store/taskAction';
-import { useSelector, useDispatch } from 'react-redux'
+import { db, currentUserUID, deleteTask } from '../api/Firebase';
 
-import { db, currentUserUID } from '../api/Firebase';
-
-import {
-    PieChart
-  } from "react-native-chart-kit";
+import { PieChart } from "react-native-chart-kit";
 import { useNavigation } from '@react-navigation/native';
 
 
 const screenWidth = Dimensions.get('window').width
 
 export const TasksDone = () => {
-    const tasks = useSelector(state => state.tasks)
     const [ tasksDone, setTasksDone ] = useState([])
     const [ totalFocusTime, setTotalFocusTime ] = useState(0)
     const [ howFocused, setHowFocused ] = useState([])
 
     const navigation = useNavigation();
 
-    const dispatch = useDispatch();
-    const foreverDeleteTask = (id) => dispatch(deleteTask(id));
+    const listening = db.collection('users').doc(currentUserUID).collection('tasks');
+    const observer = listening.onSnapshot(docSnapshot => {
+        return;
+    }, err => {
+        console.log(err)
+    })
 
     const chartConfig = {
         backgroundGradientFrom: '#1E2923',
@@ -40,35 +38,46 @@ export const TasksDone = () => {
         navigation.pop();
     }
 
-    useEffect(() => {
-        async function getUserTasks() {
-            let doc = await db
+    async function getDetails() {
+        let doc = await db
+        .collection('users')
+        .doc(currentUserUID)
+        .get()
+
+        const focusTime = doc.data().totalFocusTime
+        const noFocus = doc.data().notFocused
+        const somewhatFocus = doc.data().somewhatFocused
+        const veryFocus = doc.data().veryFocused
+
+        if(!doc.exists) {
+            Alert.alert('No data found!')
+        } else {
+            setTotalFocusTime(focusTime)
+            setHowFocused([
+                { name: 'Not Focused', number: noFocus, color: 'rgba(131, 167, 234, 1)', legendFontColor: '#000', legendFontSize: 10 }, 
+                { name: 'Somewhat Focused', number: somewhatFocus, color: '#F00', legendFontColor: '#000', legendFontSize: 10 }, 
+                { name: 'Very Focused', number: veryFocus, color: 'rgb(0, 0, 255)', legendFontColor: '#000', legendFontSize: 10 }
+            ])
+        }
+    }
+
+    async function getUserTasks() {
+        let doc = await db
             .collection('users')
             .doc(currentUserUID)
             .get()
 
             const taskList = doc.data().tasks
-            const focusTime = doc.data().totalFocusTime
-            const noFocus = doc.data().notFocused
-            const somewhatFocus = doc.data().somewhatFocused
-            const veryFocus = doc.data().veryFocused
+            setTasksDone(taskList)
+    }
 
-            if(!doc.exists) {
-                Alert.alert('No data found!')
-            } else {
-                setTasksDone(taskList)
-                setTotalFocusTime(focusTime)
-                setHowFocused([
-                    { name: 'Not Focused', number: noFocus, color: 'rgba(131, 167, 234, 1)', legendFontColor: '#000', legendFontSize: 10 }, 
-                    { name: 'Somewhat Focused', number: somewhatFocus, color: '#F00', legendFontColor: '#000', legendFontSize: 10 }, 
-                    { name: 'Very Focused', number: veryFocus, color: 'rgb(0, 0, 255)', legendFontColor: '#000', legendFontSize: 10 }
-                ])
-            }
-
-        }
-
-        getUserTasks();
+    useEffect(() => {
+        getDetails();
     }, [])
+
+    useEffect(() => {
+      getUserTasks()  
+    }, [ observer ])
 
     function timeConvert(n) {
         var num = n;
@@ -102,7 +111,7 @@ export const TasksDone = () => {
                                         :
                                         1.0
                                 }]}
-                                onPress={() => foreverDeleteTask(item.id)}
+                                onPress={() => deleteTask(item.id)}
                             >
                                 <Feather name="x" size={fontSizes.xl} color={ colors.red } style={ styles.icon }/>
                             </Pressable>

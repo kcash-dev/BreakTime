@@ -7,10 +7,9 @@ import { Countdown } from './Countdown';
 
 import { useNavigation } from '@react-navigation/native';
 
-import { useDispatch, useSelector } from 'react-redux'
-import { didTask, removeTask, updateTask } from '../store/taskAction';
-import { currentUserUID, db } from '../api/Firebase';
-// import { firestore } from '../api/Firestore';
+import { useDispatch } from 'react-redux'
+import { didTask, removeTask } from '../store/taskAction';
+import { addTask } from '../api/Firebase';
 
 export const Timer = ({
     focusItem,
@@ -24,21 +23,13 @@ export const Timer = ({
     const [ howManyFocuses, setHowManyFocuses ] = useState(0);
     const [ howManyBreaks, setHowManyBreaks ] = useState(0);
     const [ totalFocusBlocks, setTotalFocusBlocks ] = useState(0);
+    const [ focus, setFocus ] = useState(focusItem)
 
     const navigation = useNavigation();
 
     const dispatch = useDispatch();
     const finishTask = (id) => dispatch(didTask(id));
     const removeActiveTask = (id) => dispatch(removeTask(id));
-    const tasks = useSelector(state => state.tasks);
-
-    let foundTask;
-
-    if (focusItem) {
-        foundTask = tasks.find((item) => item.id === focusItem[0].id)
-    }
-
-    console.log(foundTask)
 
     const setPlayPause = () => {
         if(isStarted) {
@@ -100,32 +91,29 @@ export const Timer = ({
         }
     }
 
-    async function addTask() {
-        let incrementFocus = totalFocusBlocks * workTime
-        const incrementFocusTime = firebase.firestore.FieldValue.increment(incrementFocus)
-        
-        await db
-        .collection('users')
-        .doc(currentUserUID)
-        .update({
-            tasks: firestore.FieldValue.arrayUnion(tasks),
+    function changeFocusFinished() {
+        setFocus((focus) => {
+            focus.done = true,
+            focus.finished = true
         })
-        .then(console.log('Task updated!'))
+        addTask(time, focus)
+    }
 
-        await db
-        .collection('users')
-        .doc(currentUserUID)
-        .update({
-            totalFocusTime: incrementFocusTime
+    function changeFocusNotFinished() {
+        setFocus((focus) => {
+            focus.done = true,
+            focus.finished = false
         })
+        addTask(time, focus)
     }
 
     const handleSetters = () => {
+        const time = totalFocusBlocks * workTime
         if (howManyFocuses > 0) {
-            addTask()
-            finishTask(foundTask.id)
+            changeFocusFinished()
+            
         } else {
-            removeActiveTask(foundTask.id)
+            changeFocusNotFinished()
         }
         setIsFocusItem(false)
     }
@@ -142,7 +130,7 @@ export const Timer = ({
             { !workTimeOver ? 
                 <View>
                     <Text style={ styles.text }>You are focusing on:</Text>
-                    <Text style={ styles.focusText }>{ foundTask.task }</Text>
+                    <Text style={ styles.focusText }>{ focus.task }</Text>
                 </View>
                 :
                 null

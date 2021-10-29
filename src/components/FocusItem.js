@@ -15,12 +15,25 @@ export const FocusItem = ({
     const [ focus, setFocus ] = useState(null);
     const [ work, setWork ] = useState(0);
     const [ item, setItem ] = useState(false);
+    const [ newTask, setNewTask ] = useState(null)
+
+    function createNewTask() {
+        setItem(true)
+        setNewTask({ 
+            task: focus,
+            finished: false,
+            done: false,
+            id: Math.random().toString() 
+        })
+    }
 
     const handleSetters = () => {
-        setTask(focus)
+        setTask(newTask)
         setWorkTime(work)
         setIsFocusItem(true)
     }
+
+    console.log(newTask)
 
     return (
         <View style={ styles.container }>
@@ -57,7 +70,7 @@ export const FocusItem = ({
                 >
                     <ButtonComp 
                         name="Submit"
-                        callback={ () => setItem(true) }
+                        callback={ createNewTask }
                     />
                 </View>
             </View>

@@ -72,6 +72,52 @@ async function handleLogin(email, password) {
     .catch(err => console.log(Alert.alert(err.message)))
 }
 
+// ADD TASK
+async function addTask(time, foundTask) {
+    let incrementFocus = time
+    const incrementFocusTime = firebase.firestore.FieldValue.increment(incrementFocus)
+    
+    await db
+    .collection('users')
+    .doc(currentUserUID)
+    .update({
+        tasks: firebase.firestore.FieldValue.arrayUnion(foundTask),
+    })
+    .then(console.log('Task updated!'))
+
+    await db
+    .collection('users')
+    .doc(currentUserUID)
+    .update({
+        totalFocusTime: incrementFocusTime
+    })
+}
+
+// REMOVE TASK
+async function thisTask(obj) {
+    await db.collection('users').doc(currentUserUID).update({
+        tasks: firebase.firestore.FieldValue.arrayRemove(obj)
+    })
+}
+
+async function deleteTask(id) {
+    let doc = await db
+            .collection('users')
+            .doc(currentUserUID)
+            .get()
+    console.log(doc.data())
+    const taskList = doc.data().tasks
+    taskList.forEach(doc => {
+        if(doc.id === id) {
+            let obj = doc;
+            thisTask(obj)
+        }
+    })
+}
+
+//GET TASKS
+
+
 //LOGOUT
 
 async function handleSignOut() {
@@ -84,4 +130,4 @@ async function handleSignOut() {
 }
 
 //EXPORT
-export { db, auth, handleSignup, handleLogin, handleSignOut, currentUserUID };
+export { db, auth, handleSignup, handleLogin, handleSignOut, addTask, deleteTask, currentUserUID };
