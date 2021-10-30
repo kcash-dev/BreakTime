@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, SafeAreaView } from 'react-native';
 
 import { FocusItem } from '../components/FocusItem'
@@ -13,14 +13,6 @@ export const HomeScreen = () => {
   function submitTask(item) {
     setFocus(item)
   }
-
-  // if (!tasks.length) {
-  //   focusItem = null;
-  // } else {
-  //   if(tasks.filter(item => item.done === false)) {
-  //     focusItem = tasks.filter(item => item.done === false)
-  //   }
-  // }
 
   return (
     <SafeAreaView style={ styles.container }>

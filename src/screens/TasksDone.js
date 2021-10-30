@@ -120,14 +120,22 @@ export const TasksDone = () => {
                 />
             </View>
             <View style={ styles.infoContainer }>
-                <Text>Total Focus Time: { totalTime }</Text>
-                <PieChart
-                    data={ howFocused }
-                    width={ screenWidth }
-                    height={ 200 }
-                    chartConfig={ chartConfig }
-                    accessor="number"
-                />
+                { totalFocusTime ?
+                    <View>
+                        <Text>Total Focus Time: { totalTime }</Text>
+                        <PieChart
+                            data={ howFocused }
+                            width={ screenWidth }
+                            height={ 200 }
+                            chartConfig={ chartConfig }
+                            accessor="number"
+                        />
+                    </View>
+                :
+                    <View>
+                        <Text>You haven't focused yet! Let's get to focusing!</Text>
+                    </View>
+                }
             </View>
             <View style={ styles.buttonContainer }>
                 <ButtonComp name="Go Back"callback={ goBack }/>

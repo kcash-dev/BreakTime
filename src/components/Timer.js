@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Platform, Vibration, Image, Alert } from 'react-native';
 import { colors } from '../utils/Colors';
 import { fontSizes, spacing } from '../utils/Sizes';
@@ -6,9 +6,6 @@ import { ButtonComp, ControlButtonComp } from './Button';
 import { Countdown } from './Countdown';
 
 import { useNavigation } from '@react-navigation/native';
-
-import { useDispatch } from 'react-redux'
-import { didTask, removeTask } from '../store/taskAction';
 import { addTask } from '../api/Firebase';
 
 export const Timer = ({
@@ -17,28 +14,141 @@ export const Timer = ({
     workTime,
     breakTime
 }) => {
-    const [ time, setTime ] = useState(workTime);
-    const [ isStarted, setIsStarted ] = useState(false);
-    const [ workTimeOver, setWorkTimeOver ] = useState(false);
-    const [ howManyFocuses, setHowManyFocuses ] = useState(0);
-    const [ howManyBreaks, setHowManyBreaks ] = useState(0);
-    const [ totalFocusBlocks, setTotalFocusBlocks ] = useState(0);
-    const [ focus, setFocus ] = useState(focusItem)
-
+    const [ focusInfo, setFocusInfo ] = useState({
+        time: workTime,
+        isStarted: false,
+        workTimeOver: false,
+        howManyFocuses: 0,
+        howManyBreaks: 0,
+        totalFocusBlocks: 0,
+        focus: focusItem
+    })
+    const [ todaysFocus, setTodaysFocus ] = [];
     const navigation = useNavigation();
 
-    const dispatch = useDispatch();
-    const finishTask = (id) => dispatch(didTask(id));
-    const removeActiveTask = (id) => dispatch(removeTask(id));
 
-    const setPlayPause = () => {
-        if(isStarted) {
-            setIsStarted(false)
-        } else if (!isStarted) {
-            setIsStarted(true)
+    //COUNTDOWN INFO
+    const interval = React.useRef(null)
+    const [ timer, setTimer ] = useState(minutesToMillis(focusInfo.time));
+    function minutesToMillis(min) {
+        const time = min * 1000 * 60;
+        return time;
+    }
+
+    const onEnd = () => {
+        setFocusInfo({ ...focusInfo, isStarted: false })
+        if (focusInfo.workTimeOver === false && focusInfo.howManyFocuses < 3 && workTime === .25) {
+            vibrate()
+            setFocusInfo({ 
+                ...focusInfo, 
+                time: breakTime, 
+                workTimeOver: true, 
+                howManyFocuses: focusInfo.howManyFocuses + 1, 
+                totalFocusBlocks: focusInfo.totalFocusBlocks + .25
+            })
+            navigation.navigate('Survey')
+        } else if (focusInfo.workTimeOver === true && workTime === .25) {
+            vibrate();
+            setFocusInfo({ 
+                ...focusInfo, 
+                time: workTime, 
+                workTimeOver: false,
+                howManyBreaks: focusInfo.howManyBreaks + 1
+            })
+        } else if (focusInfo.workTimeOver === false && focusInfo.howManyFocuses === 3 && focusInfo.howManyBreaks === 3 && workTime === .25) {
+            setFocusInfo({ 
+                ...focusInfo, 
+                time: 10, 
+                workTimeOver: true, 
+                howManyFocuses: 0,
+                howManyBreaks: 0, 
+                totalFocusBlocks: focusInfo.totalFocusBlocks + .25
+            })
+            navigation.navigate('Survey')
+        } else if (focusInfo.workTimeOver === false && focusInfo.howManyFocuses < 2 && workTime === .50) {
+            vibrate()
+            setFocusInfo({ 
+                ...focusInfo, 
+                time: breakTime, 
+                workTimeOver: true, 
+                howManyFocuses: focusInfo.howManyFocuses + 2, 
+                totalFocusBlocks: focusInfo.totalFocusBlocks + .5
+            })
+            navigation.navigate('Survey')
+        } else if (focusInfo.workTimeOver === true && workTime === .50) {
+            vibrate();
+            setFocusInfo({ 
+                ...focusInfo, 
+                time: workTime, 
+                workTimeOver: false, 
+                howManyBreaks: focusInfo.howManyBreaks + 2
+            })
+        } else if (focusInfo.workTimeOver === false && focusInfo.howManyFocuses === 2 && focusInfo.howManyBreaks === 2 && workTime === .50) {
+            setFocusInfo({ 
+                ...focusInfo, 
+                time: 20, 
+                workTimeOver: true, 
+                howManyFocuses: 0,
+                howManyBreaks: 0,
+                totalFocusBlocks: focusInfo.totalFocusBlocks + .5
+            })
+            navigation.navigate('Survey')
         }
     }
 
+        // DECREASE CLOCK
+    const decrementTime = () => {
+        setTimer((times) => {
+            if(times === 0) {
+                clearInterval(interval.current)
+                onEnd();
+                return times;
+            }
+            const timeLeft = times - 1000;
+            return timeLeft;
+        })
+    }
+    
+        //IF FOCUS FINISHED
+    function changeFocusFinished() {
+        const time = focusInfo.totalFocusBlocks * workTime
+        setFocusInfo(() => { 
+            focusInfo.focus.done = true,
+            focusInfo.focus.finished = true
+        })
+        addTask(time, focusInfo.focus)
+    }
+
+        //IF FOCUS UNFINISHED
+    function changeFocusNotFinished() {
+        const time = focusInfo.totalFocusBlocks * workTime
+        setFocusInfo(() => { 
+            focusInfo.focus.done = true
+        })
+        addTask(time, focusInfo.focus)
+    }
+
+    const handleSetters = () => {
+        if (focusInfo.howManyFocuses > 0) {
+            changeFocusFinished()
+            
+        } else {
+            changeFocusNotFinished()
+        }
+        setIsFocusItem(false)
+    }
+    
+    //PLAY/PAUSE
+    const setPlayPause = () => {
+        if(focusInfo.isStarted) {
+            setFocusInfo({ ...focusInfo, isStarted: false })
+        } else if (!focusInfo.isStarted) {
+            setFocusInfo({ ...focusInfo, isStarted: true })
+        }
+    }
+
+
+    // VIBRATE
     const vibrate = () => {
         if (Platform.OS === 'ios') {
             const interval = setInterval(() => Vibration.vibrate(), 1000);
@@ -48,89 +158,23 @@ export const Timer = ({
         }
     }
 
-    const onEnd = () => {
-        setIsStarted(false)
-        if (workTimeOver === false && howManyFocuses < 3 && workTime === .25) {
-            vibrate()
-            setTime(breakTime)
-            setWorkTimeOver(true)
-            setHowManyFocuses(howManyFocuses + 1)
-            setTotalFocusBlocks(totalFocusBlocks + .25)
-            navigation.navigate('Survey')
-        } else if (workTimeOver === true && workTime === .25) {
-            vibrate();
-            setTime(workTime)
-            setWorkTimeOver(false)
-            setHowManyBreaks(howManyBreaks + 1)
-        } else if (workTimeOver === false && howManyFocuses === 3 && howManyBreaks === 3 && workTime === .25) {
-            setTime(10)
-            setWorkTimeOver(true)
-            setHowManyFocuses(0)
-            setHowManyBreaks(0)
-            setTotalFocusBlocks(totalFocusBlocks + .25)
-            navigation.navigate('Survey')
-        } else if (workTimeOver === false && howManyFocuses < 2 && workTime === .50) {
-            vibrate()
-            setTime(breakTime)
-            setWorkTimeOver(true)
-            setHowManyFocuses(howManyFocuses + 2)
-            setTotalFocusBlocks(totalFocusBlocks + .5)
-            navigation.navigate('Survey')
-        } else if (workTimeOver === true && workTime === .50) {
-            vibrate();
-            setTime(workTime)
-            setWorkTimeOver(false)
-            setHowManyBreaks(howManyBreaks + 2)
-        } else if (workTimeOver === false && howManyFocuses === 2 && howManyBreaks === 2 && workTime === .50) {
-            setTime(20)
-            setWorkTimeOver(true)
-            setHowManyFocuses(0)
-            setHowManyBreaks(0)
-            setTotalFocusBlocks(totalFocusBlocks + .5)
-            navigation.navigate('Survey')
-        }
-    }
-
-    function changeFocusFinished() {
-        setFocus((focus) => {
-            focus.done = true,
-            focus.finished = true
-        })
-        addTask(time, focus)
-    }
-
-    function changeFocusNotFinished() {
-        setFocus((focus) => {
-            focus.done = true,
-            focus.finished = false
-        })
-        addTask(time, focus)
-    }
-
-    const handleSetters = () => {
-        const time = totalFocusBlocks * workTime
-        if (howManyFocuses > 0) {
-            changeFocusFinished()
-            
-        } else {
-            changeFocusNotFinished()
-        }
-        setIsFocusItem(false)
-    }
-
     return (
         <View style={ styles.timerContainer }>
             <View>
                 <Countdown
-                    time={ time }
-                    isStarted={ !isStarted }
-                    onEnd={ onEnd }
+                    time={ focusInfo.time }
+                    isStarted={ !focusInfo.isStarted }
+                    onEnd={ decrementTime }
+                    timer={ timer }
+                    setTimer={ setTimer }
+                    minutesToMillis={ minutesToMillis }
+                    interval={ interval }
                 />
             </View>
-            { !workTimeOver ? 
+            { !focusInfo.workTimeOver ? 
                 <View>
                     <Text style={ styles.text }>You are focusing on:</Text>
-                    <Text style={ styles.focusText }>{ focus.task }</Text>
+                    <Text style={ styles.focusText }>{ focusInfo.focus.task }</Text>
                 </View>
                 :
                 null
@@ -140,7 +184,7 @@ export const Timer = ({
                     name="Pause" 
                     altName="Start" 
                     callback={ setPlayPause } 
-                    isPlaying={ isStarted }
+                    isPlaying={ focusInfo.isStarted }
                 />
             </View>
             <View
@@ -151,14 +195,14 @@ export const Timer = ({
                     callback={ handleSetters }
                 />
             </View>
-            { workTimeOver ? 
+            { focusInfo.workTimeOver ? 
                 <View>
                     <Text style={ styles.text }>TAKE A BREAK!</Text>
                 </View>
                 :
                 null
             }
-            { howManyFocuses === 0 && howManyBreaks === 0 && workTimeOver === true ?
+            { focusInfo.howManyFocuses === 0 && focusInfo.howManyBreaks === 0 && focusInfo.workTimeOver === true ?
                 <View style={ styles.imageContainer }>
                     <Image 
                         source={{uri: 'https://i.imgur.com/aON4CyZ.jpg'}} 

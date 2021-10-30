@@ -50,7 +50,7 @@ export const UserDataScreen = () => {
         getUserInfo();
     }, [])
 
-    const listening = db.collection('users').doc(currentUserUID).collection('tasks');
+    const listening = db.collection('users').doc(currentUserUID).collection('todaysFocus');
     const observer = listening.onSnapshot(docSnapshot => {
         return;
     }, err => {
@@ -63,7 +63,7 @@ export const UserDataScreen = () => {
             .doc(currentUserUID)
             .get()
 
-            const taskList = doc.data().tasks
+            const taskList = doc.data().todaysFocus
             setTasks(taskList)
     }
 

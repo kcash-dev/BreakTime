@@ -3,6 +3,7 @@ import * as firebase from 'firebase';
 import "firebase/firestore"
 import apiKeys from '../config/Keys';
 import { Alert } from 'react-native';
+import moment from 'moment';
 
 
 // Initialize Firebase
@@ -51,7 +52,8 @@ async function handleSignup(email, password, firstName, lastName) {
         firstName: firstName,
         notFocused: 0,
         somewhatFocused: 0,
-        veryFocused: 0
+        veryFocused: 0,
+        todaysFocus: []
       });
 }
 
@@ -82,21 +84,16 @@ async function addTask(time, foundTask) {
     .doc(currentUserUID)
     .update({
         tasks: firebase.firestore.FieldValue.arrayUnion(foundTask),
-    })
-    .then(console.log('Task updated!'))
-
-    await db
-    .collection('users')
-    .doc(currentUserUID)
-    .update({
-        totalFocusTime: incrementFocusTime
+        totalFocusTime: incrementFocusTime,
+        todaysFocus: firebase.firestore.FieldValue.arrayUnion(foundTask)
     })
 }
 
 // REMOVE TASK
 async function thisTask(obj) {
     await db.collection('users').doc(currentUserUID).update({
-        tasks: firebase.firestore.FieldValue.arrayRemove(obj)
+        tasks: firebase.firestore.FieldValue.arrayRemove(obj),
+        todaysFocus: firebase.firestore.FieldValue.arrayRemove(obj)
     })
 }
 
@@ -105,7 +102,6 @@ async function deleteTask(id) {
             .collection('users')
             .doc(currentUserUID)
             .get()
-    console.log(doc.data())
     const taskList = doc.data().tasks
     taskList.forEach(doc => {
         if(doc.id === id) {
@@ -115,7 +111,19 @@ async function deleteTask(id) {
     })
 }
 
-//GET TASKS
+//RESET DAILY TASKS
+
+var midnight = "00:00:00";
+var now = null;
+
+setInterval(async function () {
+    now = moment().format("H:mm:ss");
+    if (now === midnight) {
+        await db.collection('users').doc(currentUserUID).update({
+            todaysFocus: firebase.firestore.FieldValue.delete()
+        })
+    }
+}, 1000);
 
 
 //LOGOUT

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux'
-import { StyleSheet, Text, View, TextInput } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Alert } from 'react-native';
 import { colors } from '../utils/Colors';
 
 import RNPickerSelect from 'react-native-picker-select';
@@ -23,17 +23,21 @@ export const FocusItem = ({
             task: focus,
             finished: false,
             done: false,
-            id: Math.random().toString() 
+            id: Math.random().toString(),
         })
     }
 
     const handleSetters = () => {
-        setTask(newTask)
-        setWorkTime(work)
-        setIsFocusItem(true)
+        if (!focus) {
+            Alert.alert('You need to enter a focus item!')
+        } else if (!work) {
+            Alert.alert('You must choose a focus time!')
+        } else {
+            setTask(newTask)
+            setWorkTime(work)
+            setIsFocusItem(true)
+        }
     }
-
-    console.log(newTask)
 
     return (
         <View style={ styles.container }>
