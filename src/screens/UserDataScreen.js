@@ -1,36 +1,20 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, Image, Pressable, FlatList, SafeAreaView, Alert } from 'react-native';
 
-import { useSelector, useDispatch } from 'react-redux'
-import { logout } from '../store/taskAction';
 import { ButtonComp } from '../components/Button';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utils/Colors';
 import { fontSizes } from '../utils/Sizes';
-import { auth, currentUserUID, db, handleSignOut } from '../api/Firebase'
+import { currentUserUID, db, handleSignOut } from '../api/Firebase'
 import { useEffect } from 'react';
 
 export const UserDataScreen = () => {
     const [ username, setUsername ] = useState('')
     const [ tasks, setTasks ] = useState([])
-    const dispatch = useDispatch();
-    const clearStateLogout = () => dispatch(logout())
 
     function logoutUser() {
-        clearStateLogout();
-        handleSignOut();
+        handleSignOut()
     }
-
-    useEffect(() => {
-        const unsubscribe = auth
-        .onAuthStateChanged(user => {
-            if (!user) {
-                navigation.navigate('Login')
-            }
-        })
-
-        return unsubscribe;
-    }, [])
 
     async function getUserInfo() {
         let doc = await db
@@ -41,14 +25,9 @@ export const UserDataScreen = () => {
         if(!doc.exists) {
             Alert.alert('No user data found!')
         } else {
-            let dataObj = doc.data();
-            setUsername(dataObj.firstName)
+            setUsername(doc.data().firstName)
         }
     }
-
-    useEffect(() => {
-        getUserInfo();
-    }, [])
 
     const listening = db.collection('users').doc(currentUserUID).collection('todaysFocus');
     const observer = listening.onSnapshot(docSnapshot => {
@@ -63,12 +42,16 @@ export const UserDataScreen = () => {
             .doc(currentUserUID)
             .get()
 
-            const taskList = doc.data().todaysFocus
-            setTasks(taskList)
+        setTasks(doc.data().todaysFocus)
     }
 
     useEffect(() => {
+        getUserInfo();
         getUserTasks()
+
+        return () => {
+            return;
+        }
     }, [ observer ])
 
     const navigation = useNavigation();

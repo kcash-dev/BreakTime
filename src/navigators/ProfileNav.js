@@ -16,8 +16,8 @@ export const ProfileNav = () => {
           headerShown: false
         }}
       >
-        <Stack.Screen name="Login" component={ LoginScreen } />
-        <Stack.Screen name="ProfileScreen" component={ UserDataScreen } />
+        {/* <Stack.Screen name="Login" component={ LoginScreen } /> */}
+        <Stack.Screen name="ProfileScreen" component={ ProfileScreen } />
         <Stack.Screen name="TasksDone" component={ TasksDone } />
       </Stack.Navigator>
   );

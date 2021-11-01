@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { KeyboardAvoidingView, View, StyleSheet, Text, TextInput, Pressable, Alert } from 'react-native'
-import { auth, handleSignup, handleLogin } from '../api/Firebase'
+import { handleSignup, handleLogin } from '../api/Firebase'
 import { ButtonComp } from '../components/Button';
 import { colors } from '../utils/Colors';
 import { fontSizes, spacing } from '../utils/Sizes';
 import { SimpleLineIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
 
 export const LoginScreen = () => {
     const [ email, setEmail ] = useState('')
@@ -14,20 +13,7 @@ export const LoginScreen = () => {
     const [ lastName, setLastName ] = useState('')
     const [ isRegistered, setIsRegistered ] = useState(true);
 
-    const navigation = useNavigation();
-
-    useEffect(() => {
-        const unsubscribe = auth
-        .onAuthStateChanged(user => {
-            if (user) {
-                navigation.navigate('ProfileScreen')
-            }
-        })
-
-        return unsubscribe;
-    }, [])
-
-    const login = () => {
+    function login() {
         handleLogin(email, password)
     }
 

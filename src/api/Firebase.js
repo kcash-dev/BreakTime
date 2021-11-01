@@ -16,6 +16,7 @@ if (firebase.apps.length === 0) {
 
 const auth = firebase.auth()
 const db = firebase.firestore();
+const user = firebase.auth().currentUser;
 let currentUserUID;
 
 auth.onAuthStateChanged((user) => {
@@ -138,4 +139,4 @@ async function handleSignOut() {
 }
 
 //EXPORT
-export { db, auth, handleSignup, handleLogin, handleSignOut, addTask, deleteTask, currentUserUID };
+export { db, auth, handleSignup, handleLogin, handleSignOut, addTask, deleteTask, currentUserUID, user };
