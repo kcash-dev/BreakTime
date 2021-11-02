@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux'
-import { StyleSheet, Text, View, TextInput, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Alert, KeyboardAvoidingView } from 'react-native';
 import { colors } from '../utils/Colors';
 
 import RNPickerSelect from 'react-native-picker-select';
@@ -40,7 +39,7 @@ export const FocusItem = ({
     }
 
     return (
-        <View style={ styles.container }>
+        <KeyboardAvoidingView style={ styles.container }>
             { item ?
             <View style={ styles.pickerContainer }>
                 <Text style={ styles.pickerText }>How long would you like to focus?</Text>
@@ -49,7 +48,7 @@ export const FocusItem = ({
                     onValueChange={(value) => setWork(value)}
                     items={[
                         { label: '25/5', value: { work: .25, break: .1 } },
-                        { label: '50/10', value: { work: .5, break: .2 } }
+                        { label: '50/10', value: { work: .50, break: .2 } }
                     ]}
                 />
                 <View
@@ -79,7 +78,7 @@ export const FocusItem = ({
                 </View>
             </View>
             }
-        </View>
+        </KeyboardAvoidingView>
     )
 }
 

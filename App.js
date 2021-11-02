@@ -3,7 +3,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { StackNav } from './src/navigators/StackNav';
-import { ProfileScreen } from './src/screens/ProfileScreen';
 
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from './src/utils/Colors';
@@ -18,7 +17,9 @@ import { LogBox } from 'react-native';
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs();//Ignore all log notifications
 
-function App() {
+
+export default function App() {
+
   return (
     <Provider store={store}>
       <NavigationContainer>
@@ -51,4 +52,3 @@ function App() {
   );
 }
 
-export default App;
