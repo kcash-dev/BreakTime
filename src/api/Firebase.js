@@ -138,5 +138,12 @@ async function handleSignOut() {
     .catch(err => alert(err.message))
 }
 
+//SET EXPO TOKEN
+async function setExpo(token) {
+    db.collection('users').doc(currentUserUID).update({
+        expoToken: token
+    })
+}
+
 //EXPORT
-export { db, auth, handleSignup, handleLogin, handleSignOut, addTask, deleteTask, currentUserUID, user };
+export { db, auth, handleSignup, handleLogin, handleSignOut, addTask, deleteTask, setExpo, currentUserUID, user };

@@ -6,18 +6,7 @@ import { ButtonComp, ControlButtonComp } from './Button';
 import { Countdown } from './Countdown';
 
 import { useNavigation } from '@react-navigation/native';
-import { addTask } from '../api/Firebase';
-
-import Constants from 'expo-constants';
-import * as Notifications from 'expo-notifications';
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
+import { addTask, currentUserUID, db } from '../api/Firebase';
 
 export const Timer = ({
     focusItem,
@@ -35,15 +24,26 @@ export const Timer = ({
         focus: focusItem
     })
     const [expoPushToken, setExpoPushToken] = useState('');
-    const [notification, setNotification] = useState(false);
-    const [ title, setTitle ] = useState('');
-    const [ body, setBody ] = useState('');
-    const notificationListener = useRef();
-    const responseListener = useRef();
 
+    useEffect(() => {
+        async function fetchData() {
+            let doc = await db
+            .collection('users')
+            .doc(currentUserUID)
+            .get()
+        
+            const token = doc.data().expoToken
+            setExpoPushToken(token)
+        }
+
+        fetchData()
+
+        return () => {
+            return;
+        }
+    }, [])
 
     const navigation = useNavigation();
-
 
     //COUNTDOWN INFO
     const interval = React.useRef(null)
@@ -62,7 +62,8 @@ export const Timer = ({
                 time: breakTime, 
                 workTimeOver: true, 
                 howManyFocuses: focusInfo.howManyFocuses + 1, 
-                totalFocusBlocks: focusInfo.totalFocusBlocks + .25
+                totalFocusBlocks: focusInfo.totalFocusBlocks + .25,
+                isStarted: false
             })
             navigation.navigate('Survey')
         } else if (focusInfo.workTimeOver === true && workTime === .25) {
@@ -71,16 +72,19 @@ export const Timer = ({
                 ...focusInfo, 
                 time: workTime, 
                 workTimeOver: false,
-                howManyBreaks: focusInfo.howManyBreaks + 1
+                howManyBreaks: focusInfo.howManyBreaks + 1,
+                isStarted: false
             })
         } else if (focusInfo.workTimeOver === false && focusInfo.howManyFocuses === 3 && focusInfo.howManyBreaks === 3 && workTime === .25) {
+            vibrate();
             setFocusInfo({ 
                 ...focusInfo, 
                 time: 10, 
                 workTimeOver: true, 
                 howManyFocuses: 0,
                 howManyBreaks: 0, 
-                totalFocusBlocks: focusInfo.totalFocusBlocks + .25
+                totalFocusBlocks: focusInfo.totalFocusBlocks + .25,
+                isStarted: false
             })
             navigation.navigate('Survey')
         } else if (focusInfo.workTimeOver === false && focusInfo.howManyFocuses < 2 && workTime === .50) {
@@ -90,7 +94,8 @@ export const Timer = ({
                 time: breakTime, 
                 workTimeOver: true, 
                 howManyFocuses: focusInfo.howManyFocuses + 2, 
-                totalFocusBlocks: focusInfo.totalFocusBlocks + .5
+                totalFocusBlocks: focusInfo.totalFocusBlocks + .5,
+                isStarted: false
             })
             navigation.navigate('Survey')
         } else if (focusInfo.workTimeOver === true && workTime === .50) {
@@ -99,16 +104,19 @@ export const Timer = ({
                 ...focusInfo, 
                 time: workTime, 
                 workTimeOver: false, 
-                howManyBreaks: focusInfo.howManyBreaks + 2
+                howManyBreaks: focusInfo.howManyBreaks + 2,
+                isStarted: false
             })
         } else if (focusInfo.workTimeOver === false && focusInfo.howManyFocuses === 2 && focusInfo.howManyBreaks === 2 && workTime === .50) {
+            vibrate()
             setFocusInfo({ 
                 ...focusInfo, 
                 time: 20, 
                 workTimeOver: true, 
                 howManyFocuses: 0,
                 howManyBreaks: 0,
-                totalFocusBlocks: focusInfo.totalFocusBlocks + .5
+                totalFocusBlocks: focusInfo.totalFocusBlocks + .5,
+                isStarted: false
             })
             navigation.navigate('Survey')
         }
@@ -117,10 +125,19 @@ export const Timer = ({
         // DECREASE CLOCK
     const decrementTime = () => {
         setTimer((times) => {
+            let title;
+            let body;
             if(times === 0) {
                 clearInterval(interval.current)
                 onEnd();
-                push(expoPushToken, workTime);
+                if (focusInfo.workTimeOver === true) {
+                    title = 'Time to get back to work!'
+                    body = 'Break time is over! Lets get back to grinding.'
+                } else if (focusInfo.workTimeOver === false) {
+                    title = 'Take a break!'
+                    body = 'Great job! Lets take a break and recharge.'
+                }
+                sendPushNotification(expoPushToken, title, body)
                 return times;
             }
             const timeLeft = times - 1000;
@@ -176,36 +193,6 @@ export const Timer = ({
             Vibration.vibrate(10000)
         }
     }
-
-    function titleBody() {
-        if(workTime === .25 || workTime === .50) {
-            setTitle('Lets get to work!')
-            setBody('Break time is over, lets get back to it!')
-        } else if (workTime === .1 || workTime === .2) {
-            setTitle('Lets take a break!')
-            setBody('Alright, great work. Lets take a break.')
-        }
-    }
-
-    // PUSH NOTIFICATIONS
-    useEffect(() => {
-        registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
-    
-        // This listener is fired whenever a notification is received while the app is foregrounded
-        notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-          setNotification(notification);
-        });
-    
-        // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
-        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-          console.log(response);
-        });
-    
-        return () => {
-          Notifications.removeNotificationSubscription(notificationListener.current);
-          Notifications.removeNotificationSubscription(responseListener.current);
-        };
-      }, []);
 
     return (
         <View style={ styles.timerContainer }>
@@ -265,12 +252,7 @@ export const Timer = ({
     )
 }
 
-const push = async (token) => {
-    await sendPushNotification(token)
-}
-
-async function sendPushNotification(expoPushToken) {
-    titleBody();
+async function sendPushNotification(expoPushToken, title, body) {
     const message = {
       to: expoPushToken,
       sound: 'default',
@@ -287,37 +269,9 @@ async function sendPushNotification(expoPushToken) {
       },
       body: JSON.stringify(message),
     });
-  }
+}
   
-  const registerForPushNotificationsAsync = async () => {
-    if (Constants.isDevice) {
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-      if (finalStatus !== 'granted') {
-        alert('Failed to get push token for push notification!');
-        return;
-      }
-      const token = (await Notifications.getExpoPushTokenAsync()).data;
-      console.log(token);
-      this.setState({ expoPushToken: token });
-    } else {
-      alert('Must use physical device for Push Notifications');
-    }
-  
-    if (Platform.OS === 'android') {
-      Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
-      });
-    }
-    };
-  
+
 
 const styles = StyleSheet.create({
     timerContainer: {

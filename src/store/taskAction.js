@@ -1,7 +1,7 @@
-import { ADD_TASK, DELETE_TASK, DID_TASK, LOG_OUT, REMOVE_TASK, UPDATE_TASK } from "./taskTypes"
-export const addTask = (task) => ({
-    type: ADD_TASK,
-    payload: task
+import { ADD_TOKEN, DELETE_TASK, DID_TASK, LOG_OUT, REMOVE_TASK, UPDATE_TASK } from "./taskTypes"
+export const addToken = (token) => ({
+    type: ADD_TOKEN,
+    payload: token
 })
 export const deleteTask = (id) => ({
     type: DELETE_TASK,

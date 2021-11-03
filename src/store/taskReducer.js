@@ -1,16 +1,13 @@
-import { ADD_TASK, DELETE_TASK, DID_TASK, LOG_OUT, REMOVE_TASK, UPDATE_TASK } from "./taskTypes";
+import { ADD_TOKEN, DELETE_TASK, DID_TASK, LOG_OUT, REMOVE_TASK, UPDATE_TASK } from "./taskTypes";
 const initialState = {
     tasks: []
 }
 const taskReducer = (state = initialState, action) => {
     switch (action.type) {
-        case ADD_TASK:
+        case ADD_TOKEN:
         return {
             ...state,
-            tasks: [...state.tasks, {
-                    task: action.payload, done: false, finished: false, id: Math.random().toString(), focusTime: 0
-                }
-            ]
+            token: action.payload
         }  
         case DELETE_TASK:
             return {
